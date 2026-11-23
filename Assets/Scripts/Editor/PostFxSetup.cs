@@ -31,6 +31,12 @@ namespace NeonDistrict.EditorTools
             return new ClampedFloatParameter(value, min, max, true);
         }
 
+        /// <summary>Параметр с одной нижней границей (bloom.threshold, bloom.intensity в URP 17).</summary>
+        private static MinFloatParameter AtLeast(float value, float min)
+        {
+            return new MinFloatParameter(value, min, true);
+        }
+
         [MenuItem("Neon District/0) Post-processing profile", priority = 0)]
         public static VolumeProfile EnsureProfile()
         {
@@ -49,8 +55,9 @@ namespace NeonDistrict.EditorTools
             var bloom = profile.Add<Bloom>(true);
             if (bloom != null)
             {
-                bloom.threshold = Ranged(0.92f, 0f, 10f);
-                bloom.intensity = Ranged(0.85f, 0f, 10f);
+                // в URP 17 threshold/intensity — MinFloatParameter (только нижняя граница)
+                bloom.threshold = AtLeast(0.92f, 0f);
+                bloom.intensity = AtLeast(0.85f, 0f);
                 bloom.scatter = Ranged(0.72f, 0f, 1f);
                 bloom.tint = new ColorParameter(new Color(1f, 0.92f, 0.98f), true);
                 bloom.highQualityFiltering = new BoolParameter(true, true);
