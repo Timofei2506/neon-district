@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using NeonDistrict.Core;
 using NeonDistrict.World;
 using NeonDistrict.UI;
+using NeonDistrict.Missions;
 
 namespace NeonDistrict.EditorTools
 {
@@ -142,6 +143,47 @@ namespace NeonDistrict.EditorTools
 
             var menu = ui.AddComponent<MainMenuUI>();
             NeonDistrict.UI.RuntimeUI.BuildMenu(menu, ui.transform);
+
+            // ---------------------------------------------------------- миссии, субтитры, миникарта
+            var missionGo = new GameObject("MissionSystem");
+            var missions = missionGo.AddComponent<Missions.MissionSystem>();
+            missions.player = playerGo;
+            missions.city = city;
+            missions.markerParent = null;
+
+            // миникарта: отдельная ортокамера сверху + текстура в UGUI
+            var mapCamGo = new GameObject("MinimapCamera");
+            var mapCam = mapCamGo.AddComponent<Camera>();
+            mapCam.orthographic = true;
+            mapCam.orthographicSize = 150f;
+            mapCam.clearFlags = CameraClearFlags.SolidColor;
+            mapCam.backgroundColor = new Color(0.02f, 0.03f, 0.05f, 1f);
+            mapCam.farClipPlane = 900f;
+            mapCam.depth = -20;
+            mapCamGo.transform.position = new Vector3(0f, 260f, 0f);
+            mapCamGo.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
+            var minimap = ui.AddComponent<NeonDistrict.UI.Minimap>();
+            minimap.player = playerGo != null ? playerGo.transform : null;
+            minimap.mapCamera = mapCam;
+            minimap.orthoSize = 150f;
+            minimap.height = 260f;
+            NeonDistrict.UI.MinimapView.Build(minimap, ui.transform, 232f);
+
+            var dialogue = ui.AddComponent<Missions.CinematicDialogue>();
+            var hudCanvas = ui.transform.Find("Canvas");
+            dialogue.Build(hudCanvas != null ? hudCanvas : ui.transform);
+
+            var missionPanel = ui.AddComponent<HudMissionPanel>();
+            missionPanel.missions = missions;
+            missionPanel.BuildAll(hudCanvas != null ? hudCanvas : ui.transform, hudCanvas != null ? hudCanvas : ui.transform);
+
+            var binder = ui.AddComponent<Missions.MissionHudBinder>();
+            binder.missions = missions;
+            binder.dialogue = dialogue;
+            binder.minimap = minimap;
+            binder.missionPanel = missionPanel;
+            binder.hud = hud;
 
             // ---------------------------------------------------------- сохраняем
             Directory.CreateDirectory("Assets/Scenes");
