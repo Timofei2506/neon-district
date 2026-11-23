@@ -105,11 +105,19 @@ namespace NeonDistrict.EditorTools
             peds.pedestrianPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Pedestrian.prefab");
 
             // стартовая машина рядом с игроком
-            var gls = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Vehicle_GLS.prefab");
-            if (gls != null)
+            var playerPos = playerGo != null ? playerGo.transform.position : Vector3.zero;
+            var garageCars = new[]
             {
-                var car = (GameObject)PrefabUtility.InstantiatePrefab(gls);
-                car.transform.position = playerGo != null ? playerGo.transform.position + new Vector3(4f, 0.1f, 3f) : new Vector3(4f, 0.1f, 3f);
+                "Assets/Resources/NeonDistrict/Vehicle_GLS.prefab",
+                "Assets/Resources/NeonDistrict/Vehicle_Polestar.prefab",
+                "Assets/Resources/NeonDistrict/Vehicle_Corvette.prefab",
+            };
+            for (int i = 0; i < garageCars.Length; i++)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(garageCars[i]);
+                if (prefab == null) continue;
+                var car = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                car.transform.position = playerPos + new Vector3(4f + i * 5f, 0.1f, 3f);
                 car.transform.rotation = Quaternion.Euler(0f, 210f, 0f);
             }
 

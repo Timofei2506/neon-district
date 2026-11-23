@@ -25,6 +25,7 @@ namespace NeonDistrict.EditorTools
         private const string NpcFbx = "Assets/Art/Characters/NPC_Female.fbx";
         private const string MercedesFbx = "Assets/Art/Vehicles/Mercedes_GLS.fbx";
         private const string PolestarFbx = "Assets/Art/Vehicles/Polestar_4.fbx";
+        private const string CorvetteFbx = "Assets/Art/Vehicles/Corvette_Stingray.fbx";
         private const string ResFolder = "Assets/Resources/NeonDistrict";
 
         [MenuItem("Neon District/2) Build Prefabs", priority = 2)]
@@ -35,11 +36,13 @@ namespace NeonDistrict.EditorTools
             ConfigureCharacterImporter(NpcFbx, "NPC_Female_Albedo.jpg");
             ConfigureVehicleImporter(MercedesFbx);
             ConfigureVehicleImporter(PolestarFbx);
+            ConfigureVehicleImporter(CorvetteFbx);
 
             BuildPlayerPrefab();
             BuildPedestrianPrefab();
             BuildVehiclePrefab(MercedesFbx, "Vehicle_GLS.prefab", 2400f, 34f, 200f);
             BuildVehiclePrefab(PolestarFbx, "Vehicle_Polestar.prefab", 2350f, 32f, 190f);
+            BuildVehiclePrefab(CorvetteFbx, "Vehicle_Corvette.prefab", 1600f, 42f, 240f);
             CopyCityResources();
 
             AssetDatabase.SaveAssets();
