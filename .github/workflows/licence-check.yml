@@ -20,13 +20,20 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL 2>/dev/null || true
           df -h /
 
+      - name: Install GameCI CLI
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/game-ci/cli/main/install.sh -o /tmp/game-ci-install.sh
+          GAME_CI_INSTALL="$HOME/.game-ci/bin" GAME_CI_VERSION=v0.1.77 bash /tmp/game-ci-install.sh
+          echo "$HOME/.game-ci/bin" >> "$GITHUB_PATH"
+          "$HOME/.game-ci/bin/game-ci" --version
+
       - name: Activate Unity (account-based, no license file)
-        uses: game-ci/cli@v0.1.77
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          args: activate --engine unity --unityLicensingMethod personal
+        run: |
+          game-ci activate --engine unity --unityLicensingMethod personal --verbose
 
       - name: Report
         if: always()
