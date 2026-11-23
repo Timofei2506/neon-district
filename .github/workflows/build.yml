@@ -58,25 +58,44 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL 2>/dev/null || true
           df -h /
 
-      - name: Build with Unity (Windows)
-        uses: game-ci/unity-builder@v4
+      # Активация Unity 6 Personal: лицензионный файл (.ulf) не работает в облаке —
+      # он привязан к машине («Machine bindings don't match»), а ручная активация
+      # Personal закрыта Unity. Рабочий путь: запрос места (seat) по аккаунту.
+      - name: Install GameCI CLI
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/game-ci/cli/main/install.sh -o /tmp/game-ci-install.sh
+          GAME_CI_INSTALL="$HOME/.game-ci/bin" bash /tmp/game-ci-install.sh
+          echo "$HOME/.game-ci/bin" >> "$GITHUB_PATH"
+
+      - name: Activate Unity (Personal seat via account)
         env:
-          # Unity 6 + Personal: активация ТОЛЬКО по email+паролю (лицензионный файл .ulf
-          # привязан к машине и в облачном контейнере даёт «Machine bindings don't match»).
-          # Pro/Plus: добавьте UNITY_SERIAL — он имеет приоритет.
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci activate --engine unity --unityLicensingMethod personal \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
+
+      - name: Build with Unity (Windows)
+        env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          # образ редактора с Windows-модулем обязателен: linux-il2cpp не умеет собирать StandaloneWindows64
-          customImage: unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
-          targetPlatform: StandaloneWindows64
-          projectPath: ${{ env.PROJECT_PATH }}
-          buildMethod: NeonDistrict.EditorTools.CIBuild.BuildWindows
-          allowDirtyBuild: true
-          # game-ci кладёт билд в build/Windows64/...; наш CIBuild уважает -customBuildPath
-          buildsPath: build
+        run: |
+          game-ci build --engine unity --projectPath "$PROJECT_PATH" \
+            --targetPlatform StandaloneWindows64 \
+            --buildMethod NeonDistrict.EditorTools.CIBuild.BuildWindows \
+            --buildsPath build --skipActivation \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
+
+      - name: Return Unity license
+        if: always()
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci return-license --engine unity --unityLicensingMethod personal \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0 || true
 
       - name: Zip build
         if: always()
@@ -129,21 +148,41 @@ jobs:
             Library-${{ env.UNITY_VERSION }}-Linux-
             Library-
 
+      - name: Install GameCI CLI
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/game-ci/cli/main/install.sh -o /tmp/game-ci-install.sh
+          GAME_CI_INSTALL="$HOME/.game-ci/bin" bash /tmp/game-ci-install.sh
+          echo "$HOME/.game-ci/bin" >> "$GITHUB_PATH"
+
+      - name: Activate Unity (Personal seat via account)
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci activate --engine unity --unityLicensingMethod personal \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
+
       - name: Build with Unity (Linux)
-        uses: game-ci/unity-builder@v4
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          # этот образ содержит Linux-модуль (il2cpp) и Mono — подходит для StandaloneLinux64
-          customImage: unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
-          targetPlatform: StandaloneLinux64
-          projectPath: ${{ env.PROJECT_PATH }}
-          buildMethod: NeonDistrict.EditorTools.CIBuild.BuildLinux
-          allowDirtyBuild: true
-          buildsPath: build
+        run: |
+          game-ci build --engine unity --projectPath "$PROJECT_PATH" \
+            --targetPlatform StandaloneLinux64 \
+            --buildMethod NeonDistrict.EditorTools.CIBuild.BuildLinux \
+            --buildsPath build --skipActivation \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
+
+      - name: Return Unity license
+        if: always()
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci return-license --engine unity --unityLicensingMethod personal \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0 || true
 
       - name: Zip build
         if: always()
