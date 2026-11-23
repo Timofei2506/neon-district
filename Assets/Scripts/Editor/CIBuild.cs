@@ -59,11 +59,28 @@ namespace NeonDistrict.EditorTools
                 Debug.Log($"[CI] result={summary.result} size={summary.totalSize / (1024 * 1024)} MB " +
                           $"errors={summary.totalErrors} warnings={summary.totalWarnings} time={summary.totalTime}");
 
+                // Формат ниже — контракт game-ci: он парсит stdout регуляркой
+                // /^#\s*Build results\s*#(.*)^Size:/ms и валит билд, если Errors != 0.
+                // Без этого блока успешная сборка помечается как «There was an error building the project».
+                Console.WriteLine();
+                Console.WriteLine("###########################");
+                Console.WriteLine("#      Build results      #");
+                Console.WriteLine("###########################");
+                Console.WriteLine();
+                Console.WriteLine("Duration: " + summary.totalTime);
+                Console.WriteLine("Warnings: " + summary.totalWarnings);
+                Console.WriteLine("Errors: " + summary.totalErrors);
+                Console.WriteLine("Size: " + summary.totalSize + " bytes");
+                Console.WriteLine();
+
                 if (summary.result != BuildResult.Succeeded)
                 {
                     Debug.LogError("[CI] BUILD FAILED");
-                    EditorApplication.Exit(1);
+                    Console.WriteLine("Build failed!");
+                    EditorApplication.Exit(101);
                 }
+
+                Console.WriteLine("Build succeeded!");
                 EditorApplication.Exit(0);
             }
             catch (Exception e)
