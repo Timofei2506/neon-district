@@ -228,7 +228,7 @@ namespace NeonDistrict.Player
 #if ND_COMPILE_CHECK
             bool attackHeld = false;
 #else
-            bool attackHeld = (_mouse != null && _mouse.leftButton.isPressed) || (_pad != null && _pad.rightTrigger.isPressed > 0.4f);
+            bool attackHeld = (_mouse != null && _mouse.leftButton.isPressed) || (_pad != null && _pad.rightTrigger.ReadValue() > 0.4f);
 #endif
             if (!attackHeld || Time.time < _nextShotTime) return;
             _nextShotTime = Time.time + 1f / pistolFireRate;

@@ -106,32 +106,34 @@ bash tools/cscheck/run.sh      # локально; в CI то же самое д
 ```
 
 ### Активация Unity в CI (Unity Personal, файл лицензии не нужен)
-Начиная с Unity 6 **ручная активация Personal-лицензии закрыта**: страница `license.unity3d.com/manual`
-теперь принимает только Enterprise/Industry, а `.ulf`, созданный в Unity Hub, **привязан к машине**
-и в облачном контейнере даёт `Code 400: Machine bindings don't match` / `Found 0 entitlement groups`.
-Поэтому в workflow остаётся **активация по аккаунту**:
+С Unity 6 **ручная активация Personal закрыта** (`license.unity3d.com/manual` обслуживает только
+Enterprise/Industry), а `.ulf` из Unity Hub **привязан к машине** — в облаке он даёт
+`Code 400: Machine bindings don't match`. Поэтому лицензия берётся **по аккаунту**:
 
 | Лицензия | Секреты |
 |---|---|
 | Unity Personal (бесплатно) | `UNITY_EMAIL`, `UNITY_PASSWORD` |
 | Unity Pro / Plus | `UNITY_SERIAL`, `UNITY_EMAIL`, `UNITY_PASSWORD` |
 
-Страница секретов: https://github.com/Timofei2506/neon-district/settings/secrets/actions
+Секреты: https://github.com/Timofei2506/neon-district/settings/secrets/actions
 
-Что важно знать про Personal в CI:
-- каждый прогон занимает **одно место** на аккаунте; game-ci возвращает его шагом *return license*,
-  поэтому не запускайте Windows- и Linux-сборки параллельно (в workflow они идут последовательно);
-- если место «залипло» после упавшего прогона — откройте Unity Hub локально и выйдите из аккаунта:
-  на Personal выход = возврат лицензии;
-- аккаунт с 2FA может потребовать код подтверждения — для CI лучше отдельный аккаунт без 2FA.
+Сборка идёт через CLI (не `unity-builder@v4` — он жёстко требует `.ulf` или серийник):
 
-Образы редактора зафиксированы явно, потому что базовый `linux-il2cpp` **не содержит Windows-модуль**
-и не может собрать `StandaloneWindows64`:
-
-```yaml
-customImage: unityci/editor:ubuntu-6000.3.29f1-windows-mono-4.0.0   # Windows x64
-customImage: unityci/editor:ubuntu-6000.3.29f1-linux-il2cpp-4.0.0   # Linux x64
+```bash
+game-ci activate --engine unity --unityLicensingMethod personal \
+  --customImage unityci/editor:ubuntu-6000.3.29f1-base-4.0.0
+game-ci build --engine unity --targetPlatform StandaloneWindows64 ... --skipActivation \
+  --customImage unityci/editor:ubuntu-6000.3.29f1-windows-mono-4.0.0
+game-ci return-license --engine unity --unityLicensingMethod personal   # шаг if: always()
 ```
+
+Что важно знать:
+- каждый прогон занимает **одно место** на аккаунте, шаг *Return Unity license* возвращает его;
+  не запускайте Windows- и Linux-сборки параллельно (в workflow они идут последовательно);
+- если место «залипло» — откройте Unity Hub локально и выйдите из аккаунта (на Personal выход = возврат);
+- аккаунт с 2FA в CI будет требовать код — лучше отдельный CI-аккаунт без 2FA;
+- образы фиксированы явно: `linux-il2cpp` **не содержит** Windows-модуль, для `StandaloneWindows64`
+  нужен `windows-mono`, для активации достаточно `base`.
 
 ## Управление
 | Действие | Клавиша |
