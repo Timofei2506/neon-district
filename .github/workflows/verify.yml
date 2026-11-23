@@ -56,8 +56,20 @@ jobs:
           print('все JSON-файлы валидны')
           PY
 
-      - name: Санити-чек C# (скрипт tools/check_csharp.py)
+      - name: Санити-чек C# (быстрый, tools/check_csharp.py)
         run: python3 tools/check_csharp.py
+
+      - name: Кэш .NET SDK и reference-сборок Unity
+        uses: actions/cache@v4
+        with:
+          path: |
+            tools/cscheck/.dotnet
+            tools/cscheck/packages
+          key: cscheck-${{ runner.os }}-${{ hashFiles('tools/cscheck/run.sh') }}
+          restore-keys: cscheck-${{ runner.os }}-
+
+      - name: Настоящая компиляция C# (Roslyn + Unity reference assemblies)
+        run: bash tools/cscheck/run.sh
 
       - name: Проверка лицензий ассетов
         run: |
