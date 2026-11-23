@@ -1,0 +1,50 @@
+name: Unity license (activation file)
+
+# ---------------------------------------------------------------------------
+#  Одноразовый шаг: получить файл активации Unity (.alf) для этого репозитория.
+#
+#  Зачем: начиная с game-ci/unity-builder@v4 пары UNITY_EMAIL + UNITY_PASSWORD
+#  НЕДОСТАТОЧНО — нужен либо файл лицензии (UNITY_LICENSE, содержимое .ulf),
+#  либо серийный номер (UNITY_SERIAL, Unity Pro/Plus).
+#
+#  Как пользоваться:
+#   1. Actions → «Unity license (activation file)» → Run workflow.
+#   2. Скачать артефакт Unity_v6000.3.29f1.alf.
+#   3. Открыть https://license.unity3d.com/manual, войти в свой Unity-аккаунт,
+#      загрузить .alf, выбрать Personal → скачать .ulf.
+#   4. Содержимое .ulf целиком вставить в секрет UNITY_LICENSE:
+#      https://github.com/Timofei2506/neon-district/settings/secrets/actions
+#
+#  Файл .alf одноразовый и не является секретом; .ulf — уже секрет.
+# ---------------------------------------------------------------------------
+
+on:
+  workflow_dispatch:
+    inputs:
+      unity_version:
+        description: 'Версия Unity (например 6000.3.29f1)'
+        required: false
+        default: '6000.3.29f1'
+
+env:
+  UNITY_VERSION: ${{ github.event.inputs.unity_version || '6000.3.29f1' }}
+
+jobs:
+  activation:
+    name: Request activation file
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Request manual activation file
+        id: getManualLicenseFile
+        uses: game-ci/unity-request-activation-file@v2
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+
+      - name: Upload .alf
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity_v${{ env.UNITY_VERSION }}.alf
+          path: ${{ steps.getManualLicenseFile.outputs.filePath }}
+          retention-days: 7
