@@ -178,6 +178,13 @@ namespace NeonDistrict.EditorTools
             missionPanel.missions = missions;
             missionPanel.BuildAll(hudCanvas != null ? hudCanvas : ui.transform, hudCanvas != null ? hudCanvas : ui.transform);
 
+            // ---------------------------------------------------------- гараж и экономика
+            var garageGo = new GameObject("Garage");
+            var garage = garageGo.AddComponent<Economy.GarageSystem>();
+            garage.player = playerGo != null ? playerGo.transform : null;
+            var garageUi = ui.AddComponent<NeonDistrict.UI.GarageUI>();
+            garageUi.garage = garage;
+
             var binder = ui.AddComponent<Missions.MissionHudBinder>();
             binder.missions = missions;
             binder.dialogue = dialogue;
