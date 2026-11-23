@@ -105,29 +105,33 @@
 bash tools/cscheck/run.sh      # локально; в CI то же самое делает verify.yml
 ```
 
-### Что нужно один раз настроить (активация Unity для сборки)
-`game-ci/unity-builder@v4` **не активирует** Unity по email+паролю — нужен файл лицензии.
-Официальная инструкция: https://game.ci/docs/github/activation
+### Активация Unity в CI (Unity Personal, файл лицензии не нужен)
+Начиная с Unity 6 **ручная активация Personal-лицензии закрыта**: страница `license.unity3d.com/manual`
+теперь принимает только Enterprise/Industry, а `.ulf`, созданный в Unity Hub, **привязан к машине**
+и в облачном контейнере даёт `Code 400: Machine bindings don't match` / `Found 0 entitlement groups`.
+Поэтому в workflow остаётся **активация по аккаунту**:
 
-**Unity Personal (бесплатно):**
-1. Поставьте **Unity Hub**, войдите в тот же аккаунт, что и в CI.
-2. `Unity Hub → Preferences → Licenses → Add → Get a free personal license`.
-   Важно: именно через **Add** — иначе `.ulf` может не появиться на диске.
-3. Возьмите файл лицензии:
-   - Windows: `C:\ProgramData\Unity\Unity_lic.ulf`
-   - macOS: `/Library/Application Support/Unity/Unity_lic.ulf`
-   - Linux: `~/.local/share/unity3d/Unity/Unity_lic.ulf`
-4. GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
-   - `UNITY_LICENSE` — **всё содержимое** `Unity_lic.ulf`
-   - `UNITY_EMAIL` — email аккаунта Unity *(уже добавлен)*
-   - `UNITY_PASSWORD` — пароль *(уже добавлен)*
-5. **Выйдите из Unity Hub** после копирования `.ulf` — так Personal-место освобождается и не блокирует CI.
+| Лицензия | Секреты |
+|---|---|
+| Unity Personal (бесплатно) | `UNITY_EMAIL`, `UNITY_PASSWORD` |
+| Unity Pro / Plus | `UNITY_SERIAL`, `UNITY_EMAIL`, `UNITY_PASSWORD` |
 
-**Unity Pro/Plus:** вместо `UNITY_LICENSE` добавьте `UNITY_SERIAL` (`XX-XXXX-…`), email и пароль.
-Перед первым прогоном верните локальную лицензию в Unity Hub, чтобы не занимать два места.
+Страница секретов: https://github.com/Timofei2506/neon-district/settings/secrets/actions
 
-Быстрая ссылка на страницу секретов:
-https://github.com/Timofei2506/neon-district/settings/secrets/actions
+Что важно знать про Personal в CI:
+- каждый прогон занимает **одно место** на аккаунте; game-ci возвращает его шагом *return license*,
+  поэтому не запускайте Windows- и Linux-сборки параллельно (в workflow они идут последовательно);
+- если место «залипло» после упавшего прогона — откройте Unity Hub локально и выйдите из аккаунта:
+  на Personal выход = возврат лицензии;
+- аккаунт с 2FA может потребовать код подтверждения — для CI лучше отдельный аккаунт без 2FA.
+
+Образы редактора зафиксированы явно, потому что базовый `linux-il2cpp` **не содержит Windows-модуль**
+и не может собрать `StandaloneWindows64`:
+
+```yaml
+customImage: unityci/editor:ubuntu-6000.3.29f1-windows-mono-4.0.0   # Windows x64
+customImage: unityci/editor:ubuntu-6000.3.29f1-linux-il2cpp-4.0.0   # Linux x64
+```
 
 ## Управление
 | Действие | Клавиша |

@@ -2,11 +2,12 @@ name: Build (Windows / Linux)
 
 # Сборка десктопных билдов Unity 6.3 LTS.
 #
-# ВАЖНО (см. README → CI/CD): для активации Unity нужны секреты репозитория
-#   UNITY_LICENSE              — содержимое .ulf (Personal) ЛИБО
-#   UNITY_EMAIL + UNITY_PASSWORD + UNITY_SERIAL (Pro/Plus)
-# Без них job падает на шаге «Build with Unity» с сообщением
-# «Missing Unity License File and no Serial was found».
+# АКТИВАЦИЯ (см. README → CI/CD):
+#   Unity 6 + Personal  → UNITY_EMAIL + UNITY_PASSWORD (файл .ulf НЕ подходит: он привязан
+#                         к машине и в облаке даёт «Machine bindings don't match»)
+#   Unity Pro/Plus      → UNITY_SERIAL + UNITY_EMAIL + UNITY_PASSWORD
+# Дополнительно: каждый прогон занимает одно Personal-место на аккаунте; game-ci
+# возвращает его в конце (шаг return license), поэтому параллельные прогоны не запускайте.
 
 on:
   push:
@@ -57,15 +58,19 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL 2>/dev/null || true
           df -h /
 
-      - name: Build with Unity
+      - name: Build with Unity (Windows)
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          # Unity 6 + Personal: активация ТОЛЬКО по email+паролю (лицензионный файл .ulf
+          # привязан к машине и в облачном контейнере даёт «Machine bindings don't match»).
+          # Pro/Plus: добавьте UNITY_SERIAL — он имеет приоритет.
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
+          # образ редактора с Windows-модулем обязателен: linux-il2cpp не умеет собирать StandaloneWindows64
+          customImage: unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
           targetPlatform: StandaloneWindows64
           projectPath: ${{ env.PROJECT_PATH }}
           buildMethod: NeonDistrict.EditorTools.CIBuild.BuildWindows
@@ -124,15 +129,16 @@ jobs:
             Library-${{ env.UNITY_VERSION }}-Linux-
             Library-
 
-      - name: Build with Unity
+      - name: Build with Unity (Linux)
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
+          # этот образ содержит Linux-модуль (il2cpp) и Mono — подходит для StandaloneLinux64
+          customImage: unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
           targetPlatform: StandaloneLinux64
           projectPath: ${{ env.PROJECT_PATH }}
           buildMethod: NeonDistrict.EditorTools.CIBuild.BuildLinux
