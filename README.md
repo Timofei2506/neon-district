@@ -105,16 +105,29 @@
 bash tools/cscheck/run.sh      # локально; в CI то же самое делает verify.yml
 ```
 
-### Что нужно один раз настроить
-1. **Secrets** в GitHub → Settings → Secrets and variables → Actions:
-   - `UNITY_LICENSE` — содержимое файла лицензии `.ulf` (Personal: получите через `game-ci/unity-request-activation-file` + активация на license.unity3d.com);
-   - либо `UNITY_EMAIL` + `UNITY_PASSWORD` (+ `UNITY_SERIAL` для Pro).
-2. Проверить версию: `UNITY_VERSION` берётся из `ProjectVersion.txt` и по умолчанию `6000.3.29f1` (вход workflow_dispatch позволяет переопределить).
-3. Запустить: **Actions → Build → Run workflow**, либо пуш в `master`, либо тег:
-   ```
-   git tag v0.1.0 && git push origin v0.1.0
-   ```
-   → появится GitHub Release с `NeonDistrict-Windows.zip`.
+### Что нужно один раз настроить (активация Unity для сборки)
+`game-ci/unity-builder@v4` **не активирует** Unity по email+паролю — нужен файл лицензии.
+Официальная инструкция: https://game.ci/docs/github/activation
+
+**Unity Personal (бесплатно):**
+1. Поставьте **Unity Hub**, войдите в тот же аккаунт, что и в CI.
+2. `Unity Hub → Preferences → Licenses → Add → Get a free personal license`.
+   Важно: именно через **Add** — иначе `.ulf` может не появиться на диске.
+3. Возьмите файл лицензии:
+   - Windows: `C:\ProgramData\Unity\Unity_lic.ulf`
+   - macOS: `/Library/Application Support/Unity/Unity_lic.ulf`
+   - Linux: `~/.local/share/unity3d/Unity/Unity_lic.ulf`
+4. GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
+   - `UNITY_LICENSE` — **всё содержимое** `Unity_lic.ulf`
+   - `UNITY_EMAIL` — email аккаунта Unity *(уже добавлен)*
+   - `UNITY_PASSWORD` — пароль *(уже добавлен)*
+5. **Выйдите из Unity Hub** после копирования `.ulf` — так Personal-место освобождается и не блокирует CI.
+
+**Unity Pro/Plus:** вместо `UNITY_LICENSE` добавьте `UNITY_SERIAL` (`XX-XXXX-…`), email и пароль.
+Перед первым прогоном верните локальную лицензию в Unity Hub, чтобы не занимать два места.
+
+Быстрая ссылка на страницу секретов:
+https://github.com/Timofei2506/neon-district/settings/secrets/actions
 
 ## Управление
 | Действие | Клавиша |
