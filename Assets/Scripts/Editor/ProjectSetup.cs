@@ -83,6 +83,28 @@ namespace NeonDistrict.EditorTools
                 ti.textureCompression = TextureImporterCompression.CompressedHQ;
                 ti.SaveAndReimport();
             }
+            // ------------------------------------------------------------------
+            // ВАЖНО: модель Манхэттена — 260k треугольников одним куском.
+            // Фрустум- и окклюжн-каллинг по ней не работают (один меш = один объект),
+            // поэтому в кадре рисуется весь город целиком. Режем меш на чанки по сетке
+            // 128 м: Unity получает возможность каллинга, static batching по-прежнему
+            // работает, draw call'ы остаются в разумных пределах.
+            // ------------------------------------------------------------------
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(ManhattanFbx);
+            if (model != null)
+            {
+                int chunks = 0;
+                foreach (var mf in model.GetComponentsInChildren<MeshFilter>(true))
+                {
+                    if (mf.sharedMesh == null || mf.sharedMesh.triangles.Length < 30000) continue;
+                    var parent = mf.transform.parent != null ? mf.transform.parent : mf.transform;
+                    int made = MeshChunker.Split(mf.gameObject, 1600f);
+                    chunks += made;
+                    Debug.Log($"[Neon District] чанки для {mf.name}: {made} шт (родитель {parent.name})");
+                }
+                if (chunks > 0) Debug.Log($"[Neon District] Манхэттен разбит на {chunks} чанков для каллинга.");
+            }
+
             Debug.Log("[Neon District] Манхэттен импортирован (материалы + текстуры).");
         }
 

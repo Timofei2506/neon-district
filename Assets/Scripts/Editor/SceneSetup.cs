@@ -33,6 +33,8 @@ namespace NeonDistrict.EditorTools
             // ---------------------------------------------------------- свет
             var sunGo = new GameObject("Sun");
             var sun = sunGo.AddComponent<Light>();
+            sun.shadows = LightShadows.Soft;
+            sun.shadowCustomResolution = 4096;
             sun.type = LightType.Directional;
             sun.color = new Color(1f, 0.95f, 0.86f);
             sun.intensity = 2.0f;
