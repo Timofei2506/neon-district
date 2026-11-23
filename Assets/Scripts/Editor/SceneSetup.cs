@@ -100,6 +100,13 @@ namespace NeonDistrict.EditorTools
             var traffic = systems.AddComponent<TrafficSystem>();
             traffic.city = city;
             traffic.player = playerGo != null ? playerGo.transform : null;
+            // для трафика — только «лёгкие» модели: Polestar (616k трис) в поток не ставим
+            traffic.carPrefabs = new[]
+            {
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Vehicle_AMG.prefab"),
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Vehicle_Corvette.prefab"),
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Vehicle_GLS.prefab"),
+            };
 
             var peds = systems.AddComponent<PedestrianSpawner>();
             peds.player = playerGo != null ? playerGo.transform : null;

@@ -74,6 +74,14 @@ namespace NeonDistrict.World
             var prefab = carPrefabs[Random.Range(0, carPrefabs.Length)];
             var go = Instantiate(prefab, pos, Quaternion.Euler(0f, alongX ? (dir > 0 ? 0f : 180f) : (dir > 0 ? 90f : -90f), 0f), transform);
             go.name = "TrafficCar";
+            // трафик двигаем трансформом: физика не должна «бороться» за кузов
+            var rb = go.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.interpolation = RigidbodyInterpolation.None;
+            }
+
             var car = new CarAI
             {
                 t = go.transform,
