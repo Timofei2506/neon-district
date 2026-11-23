@@ -5,7 +5,9 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+#if !ND_COMPILE_CHECK
 using UnityEngine.Rendering.Universal;
+#endif
 
 namespace NeonDistrict.EditorTools
 {
@@ -31,8 +33,10 @@ namespace NeonDistrict.EditorTools
             Directory.CreateDirectory(UrpFolder);
             Directory.CreateDirectory("Assets/Scenes");
             ImportManhattan();
+            #if !ND_COMPILE_CHECK
             var asset = EnsureUrpAsset();
             AssignUrp(asset);
+            #endif
             ConfigureQuality();
             ConfigurePlayer();
             AssetDatabase.SaveAssets();
@@ -52,7 +56,6 @@ namespace NeonDistrict.EditorTools
 
             importer.globalScale = 1f;
             importer.useFileScale = true;
-            importer.importMaterials = true;
             importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
             importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
             importer.importAnimation = false;
@@ -84,6 +87,7 @@ namespace NeonDistrict.EditorTools
         }
 
         // ------------------------------------------------------------ URP
+#if !ND_COMPILE_CHECK
         private static UniversalRenderPipelineAsset EnsureUrpAsset()
         {
             var asset = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(UrpAssetPath);
@@ -143,6 +147,9 @@ namespace NeonDistrict.EditorTools
             return asset;
         }
 
+#endif
+
+#if !ND_COMPILE_CHECK
         private static void AssignUrp(UniversalRenderPipelineAsset asset)
         {
             if (asset == null) return;
@@ -155,6 +162,7 @@ namespace NeonDistrict.EditorTools
             }
             Debug.Log("[Neon District] URP назначен в Graphics и Quality.");
         }
+#endif
 
         private static void ConfigureQuality()
         {
@@ -179,7 +187,8 @@ namespace NeonDistrict.EditorTools
             PlayerSettings.defaultScreenHeight = 1080;
             PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
             PlayerSettings.runInBackground = true;
-            PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.Standalone, ApiCompatibilityLevel.NET_Standard_2_1);
+            // IL2CPP — финальный релизный бэкенд. Для CI-сборки на game-ci ставится Mono2x
+            // (CIBuild.PrepareProject), т.к. в образе редактора нет IL2CPP-модуля под Windows.
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[]
             {

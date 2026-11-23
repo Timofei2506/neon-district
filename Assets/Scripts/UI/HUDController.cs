@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using NeonDistrict.Core;
 using NeonDistrict.Player;
+using NeonDistrict.World;
 
 namespace NeonDistrict.UI
 {
@@ -61,10 +62,10 @@ namespace NeonDistrict.UI
             if (player != null && districtText != null && city != null)
                 districtText.text = city.DistrictNameAt(player.position);
 
-            if (popupTimer > 0f)
+            if (_popupTimer > 0f)
             {
-                popupTimer -= Time.deltaTime;
-                if (popupText != null) popupText.color = new Color(1f, 1f, 1f, Mathf.Clamp01(popupTimer));
+                _popupTimer -= Time.deltaTime;
+                if (popupText != null) popupText.color = new Color(1f, 1f, 1f, Mathf.Clamp01(_popupTimer));
             }
             if (_hintTimer > 0f)
             {
@@ -115,7 +116,7 @@ namespace NeonDistrict.UI
         {
             if (popupText == null) return;
             popupText.text = text;
-            popupTimer = seconds;
+            _popupTimer = seconds;
         }
 
         public void Hint(string text, float seconds = 4f)

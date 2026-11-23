@@ -35,14 +35,20 @@ namespace NeonDistrict.CameraRig
         private float _pitch = 14f;
         private Vector3 _currentPos;
         private Quaternion _currentRot;
+#if ND_COMPILE_CHECK
+        private object _mouse, _pad;        // офлайн-проверка: Input System недоступен
+#else
         private UnityEngine.InputSystem.Mouse _mouse;
         private UnityEngine.InputSystem.Gamepad _pad;
+#endif
         private float _currentDistance;
 
         private void Start()
         {
+#if !ND_COMPILE_CHECK
             _mouse = UnityEngine.InputSystem.Mouse.current;
             _pad = UnityEngine.InputSystem.Gamepad.current;
+#endif
             _currentDistance = distance;
             if (target != null) _yaw = target.eulerAngles.y;
         }
@@ -64,8 +70,10 @@ namespace NeonDistrict.CameraRig
             if (Core.GameManager.Instance != null && !Core.GameManager.Instance.IsPlaying) return;
 
             Vector2 look = Vector2.zero;
+#if !ND_COMPILE_CHECK
             if (_mouse != null) look += _mouse.delta.ReadValue() * 0.09f;
             if (_pad != null) look += _pad.rightStick.ReadValue() * 2.4f;
+#endif
 
             _yaw += look.x * mouseSensitivity;
             _pitch = Mathf.Clamp(_pitch - look.y * mouseSensitivity, -20f, 68f);

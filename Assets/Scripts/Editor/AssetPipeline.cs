@@ -199,7 +199,6 @@ namespace NeonDistrict.EditorTools
             var pc = root.AddComponent<PlayerController>();
             pc.animator = visual.GetComponentInChildren<Animator>();
             pc.locomotion = locomotion;
-            EnsureAnimatorController(fbx, pc.animator);
             pc.walkSpeed = 2.0f;
             pc.runSpeed = 5.2f;
             pc.sprintSpeed = 6.8f;
@@ -360,6 +359,14 @@ namespace NeonDistrict.EditorTools
                 livery.bodyWhiteMaterial = m;
             }
 
+            var audio = root.AddComponent<AudioSource>();
+            audio.playOnAwake = false;
+            audio.loop = true;
+            audio.spatialBlend = 1f;          // 3D-звук: слышно, как патруль приближается
+            audio.rolloffMode = AudioRolloffMode.Linear;
+            audio.minDistance = 6f;
+            audio.maxDistance = 90f;
+            audio.dopplerLevel = 0.6f;
             var siren = root.AddComponent<NeonDistrict.Police.PoliceSiren>();
             var ai = root.AddComponent<NeonDistrict.Police.PoliceAI>();
             ai.livery = livery;

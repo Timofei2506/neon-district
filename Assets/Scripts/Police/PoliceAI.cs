@@ -71,7 +71,11 @@ namespace NeonDistrict.Police
             if (playerVehicle != null)
             {
                 var pv = playerVehicle.GetComponent<Rigidbody>();
+#if UNITY_6000_0_OR_NEWER
                 if (pv != null) aimPoint += pv.linearVelocity * 0.6f;
+#else
+                if (pv != null) aimPoint += pv.velocity * 0.6f;
+#endif
                 else aimPoint += playerVehicle.transform.forward * 6f;
             }
 

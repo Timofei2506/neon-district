@@ -56,12 +56,38 @@ namespace NeonDistrict.Vehicles
         public bool EngineOn => engineOn && (Driver != null || Mathf.Abs(ForwardSpeed) > 0.1f);
         public Vector3 DriverSeatWorld => driverSeat != null ? driverSeat.position : transform.position;
         public float MaxSpeedKmh => maxSpeedKmh;
-        public float SpeedKmh => _rb.linearVelocity.magnitude * 3.6f;
-        public float ForwardSpeed => Vector3.Dot(_rb.linearVelocity, transform.forward);
+        public float SpeedKmh => Velocity.magnitude * 3.6f;
+        public float ForwardSpeed => Vector3.Dot(Velocity, transform.forward);
         public int Gear { get; private set; } = 1;
         public float Rpm { get; private set; }
 
         private Rigidbody _rb;
+
+        /// <summary>
+        /// Velocity Rigidbody с фолбэком. В Unity 6 свойство называется linearVelocity,
+        /// в 2022 и раньше — velocity. Сборка проекта идёт на Unity 6.3, но код
+        /// остаётся совместимым (и проверяется офлайн-компилятором на обе ветки).
+        /// </summary>
+        private Vector3 Velocity
+        {
+            get
+            {
+#if UNITY_6000_0_OR_NEWER
+                return _rb.linearVelocity;
+#else
+                return _rb.velocity;
+#endif
+            }
+            set
+            {
+#if UNITY_6000_0_OR_NEWER
+                _rb.linearVelocity = value;
+#else
+                _rb.velocity = value;
+#endif
+            }
+        }
+
         private float _throttle;
         private float _steer;
         private float _handbrake;
@@ -133,19 +159,19 @@ namespace NeonDistrict.Vehicles
 
             // ограничение скорости
             float maxMs = maxSpeedKmh / 3.6f;
-            if (_rb.linearVelocity.magnitude > maxMs)
-                _rb.linearVelocity = _rb.linearVelocity.normalized * maxMs;
+            if (Velocity.magnitude > maxMs)
+                Velocity = Velocity.normalized * maxMs;
 
             // сопротивление и прижимная сила
-            _rb.AddForce(-_rb.linearVelocity * drag * 60f, ForceMode.Force);
-            _rb.AddForce(-transform.up * _rb.linearVelocity.magnitude * downforce, ForceMode.Force);
+            _rb.AddForce(-Velocity * drag * 60f, ForceMode.Force);
+            _rb.AddForce(-transform.up * Velocity.magnitude * downforce, ForceMode.Force);
 
             // боковое сцепление (аркадный занос)
-            var localVel = transform.InverseTransformDirection(_rb.linearVelocity);
+            var localVel = transform.InverseTransformDirection(Velocity);
             float gripNow = Mathf.Lerp(grip, handbrakeGrip, _handbrake);
             localVel.x *= Mathf.Clamp01(1f - gripNow * Time.fixedDeltaTime * 6f);
             var v = transform.TransformDirection(localVel);
-            _rb.linearVelocity = new Vector3(v.x, _rb.linearVelocity.y, v.z);
+            Velocity = new Vector3(v.x, Velocity.y, v.z);
 
             // руление через крутящий момент (стабильнее, чем телепорт rotation)
             float steerTorque = _steer * Mathf.Clamp(speedMs, -1f, 1f) * 260f * (1f - _handbrake * 0.4f);
@@ -161,7 +187,7 @@ namespace NeonDistrict.Vehicles
             // крен и клевок кузова
             if (bodyVisual != null)
             {
-                float lateral = Vector3.Dot(_rb.linearVelocity, transform.right);
+                float lateral = Vector3.Dot(Velocity, transform.right);
                 var target = Quaternion.Euler(_braking ? pitchAmount : -_throttle * pitchAmount * 0.5f, 0f, -lateral * rollAmount * 0.1f);
                 bodyVisual.localRotation = Quaternion.Slerp(bodyVisual.localRotation, target, 6f * Time.fixedDeltaTime);
             }

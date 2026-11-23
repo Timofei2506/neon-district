@@ -65,12 +65,16 @@ namespace NeonDistrict.World
         private void EnableStaticBatching(GameObject go)
         {
             // Статический батчинг снижает число draw call'ов в разы.
-            // Признак Static запекается в сцене; в рантайме дополнительно ставим флаги.
-            var flags = StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccludeeStatic;
+            // Признак Static запекается в сцене (см. SceneSetup), в рантайме
+            // выставляем только то, что доступно без UnityEditor.
+#if UNITY_EDITOR
+            var flags = UnityEditor.StaticEditorFlags.BatchingStatic | UnityEditor.StaticEditorFlags.OccludeeStatic;
+#endif
             foreach (var t in go.GetComponentsInChildren<Transform>())
             {
 #if UNITY_EDITOR
-                GameObjectUtility.SetStaticEditorFlags(t.gameObject, flags);
+                // в редакторе помечаем объекты Static -> статический батчинг и occlusion
+                UnityEditor.GameObjectUtility.SetStaticEditorFlags(t.gameObject, flags);
 #endif
                 var r = t.GetComponent<MeshRenderer>();
                 if (r != null) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;

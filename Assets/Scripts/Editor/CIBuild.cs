@@ -19,6 +19,7 @@ namespace NeonDistrict.EditorTools
     public static class CIBuild
     {
         private const string ScenePath = "Assets/Scenes/Playground.unity";
+        // game-ci передаёт свой путь через -customBuildPath; локально собираем в Builds/Windows.
         private const string OutputDir = "Builds/Windows";
 
         [MenuItem("Neon District/Build Windows (CI)", priority = 20)]
@@ -34,11 +35,21 @@ namespace NeonDistrict.EditorTools
                 Debug.Log("=== Neon District CI build: " + target + " ===");
                 PrepareProject();
 
-                Directory.CreateDirectory(outDir);
+                // если запуск идёт через game-ci, он передаёт -customBuildPath <...>/NeonDistrict.exe —
+                // уважаем его, иначе используем наш Builds/...
+                string location = Path.Combine(outDir, exeName);
+                var argv = Environment.GetCommandLineArgs();
+                for (int i = 0; i < argv.Length - 1; i++)
+                    if (argv[i] == "-customBuildPath" && !string.IsNullOrEmpty(argv[i + 1]))
+                        location = argv[i + 1];
+
+                string dir = Path.GetDirectoryName(location);
+                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+
                 var options = new BuildPlayerOptions
                 {
                     scenes = new[] { ScenePath },
-                    locationPathName = Path.Combine(outDir, exeName),
+                    locationPathName = location,
                     target = target,
                     options = BuildOptions.None,
                 };
@@ -89,7 +100,6 @@ namespace NeonDistrict.EditorTools
             // 4) качество/графика под сборку
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
-            PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.Standalone, ApiCompatibilityLevel.NET_Standard_2_1);
             PlayerSettings.runInBackground = true;
             PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Standalone, "com.neondistrict.studio.game");
             QualitySettings.SetQualityLevel(Mathf.Max(0, QualitySettings.names.Length - 1), false);

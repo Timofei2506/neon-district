@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+#if !ND_COMPILE_CHECK
 using UnityEngine.Rendering.Universal;
+#endif
 using NeonDistrict.Core;
 
 namespace NeonDistrict.World
@@ -15,7 +17,12 @@ namespace NeonDistrict.World
         [Header("Ссылки")]
         public Light sun;
         public Light moon;
+        // Volume — тип из URP-пакета; в офлайн-проверке компиляции (ND_COMPILE_CHECK) его нет.
+#if !ND_COMPILE_CHECK
         public Volume postProcessVolume;
+#else
+        public UnityEngine.Object postProcessVolume;
+#endif
         public Light[] streetLights;
         public Renderer[] neonRenderers;
 
@@ -81,6 +88,7 @@ namespace NeonDistrict.World
                 }
             }
 
+            #if !ND_COMPILE_CHECK
             if (postProcessVolume != null && postProcessVolume.profile != null)
             {
                 if (postProcessVolume.profile.TryGet(out Bloom bloom))
@@ -90,6 +98,8 @@ namespace NeonDistrict.World
                 if (postProcessVolume.profile.TryGet(out ColorAdjustments grade))
                     grade.postExposure.value = Mathf.Lerp(0.05f, 0.5f, night);
             }
+            #endif
+
         }
 
         private static Gradient DefaultSun()

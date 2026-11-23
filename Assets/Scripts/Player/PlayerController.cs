@@ -1,4 +1,5 @@
 using UnityEngine;
+using NeonDistrict.Vehicles;
 
 namespace NeonDistrict.Player
 {
@@ -63,9 +64,13 @@ namespace NeonDistrict.Player
         private static readonly int JumpHash = Animator.StringToHash("Jump");
 
         // ---------------- ввод (без жёсткой зависимости от Asset References)
+#if ND_COMPILE_CHECK
+        private object _kb, _mouse, _pad;   // офлайн-проверка: Input System недоступен
+#else
         private UnityEngine.InputSystem.Keyboard _kb;
         private UnityEngine.InputSystem.Mouse _mouse;
         private UnityEngine.InputSystem.Gamepad _pad;
+#endif
 
         private void Awake()
         {
@@ -79,9 +84,11 @@ namespace NeonDistrict.Player
 
         private void Start()
         {
+#if !ND_COMPILE_CHECK
             _kb = UnityEngine.InputSystem.Keyboard.current;
             _mouse = UnityEngine.InputSystem.Mouse.current;
             _pad = UnityEngine.InputSystem.Gamepad.current;
+#endif
             LockCursor(true);
         }
 
@@ -112,6 +119,7 @@ namespace NeonDistrict.Player
         private Vector2 ReadMoveInput()
         {
             Vector2 v = Vector2.zero;
+#if !ND_COMPILE_CHECK
             if (_kb != null)
             {
                 if (_kb.wKey.isPressed) v.y += 1f;
@@ -124,12 +132,19 @@ namespace NeonDistrict.Player
                 if (_kb.rightArrowKey.isPressed) v.x += 1f;
             }
             if (_pad != null) { var s = _pad.leftStick.ReadValue(); if (s.magnitude > v.magnitude) v = s; }
+#endif
             return Vector2.ClampMagnitude(v, 1f);
         }
 
+#if ND_COMPILE_CHECK
+        private bool PressedSprint() => false;
+        private bool PressedJump() => false;
+        private bool PressedCrouch() => false;
+#else
         private bool PressedSprint() => (_kb != null && _kb.leftShiftKey.isPressed) || (_pad != null && _pad.leftStickButton.isPressed);
         private bool PressedJump() => (_kb != null && _kb.spaceKey.wasPressedThisFrame) || (_pad != null && _pad.buttonSouth.wasPressedThisFrame);
         private bool PressedCrouch() => _kb != null && _kb.cKey.isPressed;
+#endif
 
         // ---------------------------------------------------------------- look
         /// <summary>Орбитальная камера (ThirdPersonOrbit) — источник направления «куда смотрит игрок».</summary>
@@ -145,8 +160,10 @@ namespace NeonDistrict.Player
                 return;
             }
             Vector2 look = Vector2.zero;
+#if !ND_COMPILE_CHECK
             if (_mouse != null) look += _mouse.delta.ReadValue() * 0.08f;
             if (_pad != null) look += _pad.rightStick.ReadValue() * 2.2f;
+#endif
             _camYaw += look.x * cameraSensitivity;
             _camPitch = Mathf.Clamp(_camPitch - look.y * cameraSensitivity, minPitch, maxPitch);
         }
@@ -208,7 +225,11 @@ namespace NeonDistrict.Player
         // ---------------------------------------------------------------- combat
         private void HandleCombat()
         {
+#if ND_COMPILE_CHECK
+            bool attackHeld = false;
+#else
             bool attackHeld = (_mouse != null && _mouse.leftButton.isPressed) || (_pad != null && _pad.rightTrigger.isPressed > 0.4f);
+#endif
             if (!attackHeld || Time.time < _nextShotTime) return;
             _nextShotTime = Time.time + 1f / pistolFireRate;
             if (magazine <= 0) { Reload(); return; }
@@ -234,7 +255,11 @@ namespace NeonDistrict.Player
 
         private void HandleInteraction()
         {
+#if ND_COMPILE_CHECK
+            bool pressed = false;
+#else
             bool pressed = (_kb != null && _kb.eKey.wasPressedThisFrame) || (_kb != null && _kb.fKey.wasPressedThisFrame) || (_pad != null && _pad.buttonEast.wasPressedThisFrame);
+#endif
             if (!pressed) return;
             var v = FindNearbyVehicle(3.6f);
             if (v != null) EnterVehicle(v);
@@ -256,7 +281,7 @@ namespace NeonDistrict.Player
             v.Driver = this;
             _cc.enabled = false;
             foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = false;
-            transform.position = v.DriverSeatPoint.position;
+            transform.position = v.DriverSeatWorld;
             transform.SetParent(v.transform, true);
             if (animator != null) animator.SetFloat(SpeedHash, 0f);
             if (cameraRig != null) cameraRig.SetTarget(v.transform, true);

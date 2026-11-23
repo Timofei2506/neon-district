@@ -178,7 +178,7 @@ namespace NeonDistrict.EditorTools
             // источники: геометрия города + большая «земля», чтобы пешеходы не падали
             var sources = new System.Collections.Generic.List<NavMeshBuildSource>();
             var markups = new System.Collections.Generic.List<NavMeshBuildMarkup>();
-            UnityEditor.AI.NavMeshBuilder.CollectSources(
+            NavMeshBuilder.CollectSources(
                 new Bounds(Vector3.zero, new Vector3(12000f, 900f, 12000f)),
                 ~0, NavMeshCollectGeometry.RenderMeshes, 0, markups, sources);
             sources.Add(new NavMeshBuildSource
