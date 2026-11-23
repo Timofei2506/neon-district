@@ -21,6 +21,16 @@ namespace NeonDistrict.EditorTools
         public const string Folder = "Assets/Art/URP";
         public const string ProfilePath = Folder + "/NeonDistrict_PostFX.asset";
 
+        /// <summary>
+        /// URP 17 (Unity 6) перевёл конструктор <see cref="ClampedFloatParameter"/> на
+        /// (value, min, max, overrideState) — вариант (value, overrideState) больше не компилируется.
+        /// Диапазоны ниже — те же, что URP показывает в инспекторе по умолчанию.
+        /// </summary>
+        private static ClampedFloatParameter Ranged(float value, float min, float max)
+        {
+            return new ClampedFloatParameter(value, min, max, true);
+        }
+
         [MenuItem("Neon District/0) Post-processing profile", priority = 0)]
         public static VolumeProfile EnsureProfile()
         {
@@ -39,9 +49,9 @@ namespace NeonDistrict.EditorTools
             var bloom = profile.Add<Bloom>(true);
             if (bloom != null)
             {
-                bloom.threshold = new ClampedFloatParameter(0.92f, true);
-                bloom.intensity = new ClampedFloatParameter(0.85f, true);
-                bloom.scatter = new ClampedFloatParameter(0.72f, true);
+                bloom.threshold = Ranged(0.92f, 0f, 10f);
+                bloom.intensity = Ranged(0.85f, 0f, 10f);
+                bloom.scatter = Ranged(0.72f, 0f, 1f);
                 bloom.tint = new ColorParameter(new Color(1f, 0.92f, 0.98f), true);
                 bloom.highQualityFiltering = new BoolParameter(true, true);
             }
@@ -50,8 +60,8 @@ namespace NeonDistrict.EditorTools
             var vig = profile.Add<Vignette>(true);
             if (vig != null)
             {
-                vig.intensity = new ClampedFloatParameter(0.26f, true);
-                vig.smoothness = new ClampedFloatParameter(0.42f, true);
+                vig.intensity = Ranged(0.26f, 0f, 1f);
+                vig.smoothness = Ranged(0.42f, 0.01f, 1f);
                 vig.color = new ColorParameter(new Color(0.01f, 0.02f, 0.04f), true);
             }
 
@@ -59,17 +69,17 @@ namespace NeonDistrict.EditorTools
             var grade = profile.Add<ColorAdjustments>(true);
             if (grade != null)
             {
-                grade.postExposure = new ClampedFloatParameter(0.15f, true);
-                grade.contrast = new ClampedFloatParameter(12f, true);
-                grade.saturation = new ClampedFloatParameter(8f, true);
-                grade.hueShift = new ClampedFloatParameter(-2f, true);
+                grade.postExposure = Ranged(0.15f, -5f, 5f);
+                grade.contrast = Ranged(12f, -100f, 100f);
+                grade.saturation = Ranged(8f, -100f, 100f);
+                grade.hueShift = Ranged(-2f, -180f, 180f);
             }
 
             var wb = profile.Add<WhiteBalance>(true);
             if (wb != null)
             {
-                wb.temperature = new ClampedFloatParameter(6f, true);
-                wb.tint = new ClampedFloatParameter(2f, true);
+                wb.temperature = Ranged(6f, -100f, 100f);
+                wb.tint = Ranged(2f, -100f, 100f);
             }
 
             // ---- плёночное зерно и лёгкая аберрация: «дорогая» картинка
@@ -77,12 +87,12 @@ namespace NeonDistrict.EditorTools
             if (grain != null)
             {
                 grain.type = new FilmGrainLookupParameter(FilmGrainLookup.Thin2, true);
-                grain.intensity = new ClampedFloatParameter(0.18f, true);
-                grain.response = new ClampedFloatParameter(0.8f, true);
+                grain.intensity = Ranged(0.18f, 0f, 1f);
+                grain.response = Ranged(0.8f, 0f, 1f);
             }
 
             var ca = profile.Add<ChromaticAberration>(true);
-            if (ca != null) ca.intensity = new ClampedFloatParameter(0.09f, true);
+            if (ca != null) ca.intensity = Ranged(0.09f, 0f, 1f);
 
             AssetDatabase.CreateAsset(profile, ProfilePath);
             AssetDatabase.SaveAssets();

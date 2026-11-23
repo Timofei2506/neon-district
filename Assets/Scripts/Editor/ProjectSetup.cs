@@ -128,18 +128,17 @@ namespace NeonDistrict.EditorTools
             asset.msaaSampleCount = 4;
             asset.renderScale = 1.0f;
             asset.supportsHDR = true;
-            asset.hdrColorBufferPrecision = UniversalRenderPipelineAsset.ColorBufferFormat.FP16_precision;
+            TrySetEnum(asset, "hdrColorBufferPrecision", "FP16_precision", "_64Bits"); // имя enum менялось между версиями URP
             asset.shadowDistance = 260f;
             asset.shadowCascadeCount = 4;
             asset.mainLightShadowmapResolution = 4096;
             asset.additionalLightsShadowmapResolution = 2048;
-            asset.supportsSoftShadows = true;
+            // supportsSoftShadows / supportsMainLightShadows / supportsAdditionalLightShadows
+            // в URP 17 доступны только для чтения (переехали в UniversalRendererData) — не трогаем.
             asset.shadowDepthBias = 1.0f;
             asset.shadowNormalBias = 1.0f;
             asset.supportsCameraDepthTexture = true;
             asset.supportsCameraOpaqueTexture = true;
-            asset.supportsMainLightShadows = true;
-            asset.supportsAdditionalLightShadows = true;
             asset.maxAdditionalLightsCount = 4;
             
 
@@ -171,6 +170,30 @@ namespace NeonDistrict.EditorTools
 
 #endif
 
+        /// <summary>
+        /// Ставит enum-свойство по имени значения, молча пропуская его, если в этой версии URP
+        /// свойство/значение называется иначе (ассеты URP переименовывали их между 14 и 17).
+        /// Нужно, чтобы редакторский сетап не ломал компиляцию на апгрейде пакета.
+        /// </summary>
+        private static void TrySetEnum(object target, string property, params string[] candidateValues)
+        {
+            if (target == null) return;
+            var prop = target.GetType().GetProperty(property,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            if (prop == null || !prop.CanWrite || !prop.PropertyType.IsEnum) return;
+
+            foreach (var candidate in candidateValues)
+            {
+                try
+                {
+                    prop.SetValue(target, System.Enum.Parse(prop.PropertyType, candidate));
+                    EditorUtility.SetDirty(target as UnityEngine.Object);
+                    return;
+                }
+                catch (System.ArgumentException) { /* нет такого значения — пробуем следующее */ }
+            }
+        }
+
 #if !ND_COMPILE_CHECK
         private static void AssignUrp(UniversalRenderPipelineAsset asset)
         {
@@ -191,7 +214,7 @@ namespace NeonDistrict.EditorTools
             QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1, false);
             QualitySettings.shadowDistance = 260f;
             QualitySettings.shadowCascades = 4;
-            QualitySettings.shadowResolution = ShadowResolution.VeryHigh;
+            QualitySettings.shadowResolution = UnityEngine.ShadowResolution.VeryHigh;
             QualitySettings.antiAliasing = 4;
             QualitySettings.vSyncCount = 1;
             QualitySettings.lodBias = 2f;
