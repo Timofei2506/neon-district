@@ -38,7 +38,9 @@ namespace NeonDistrict.World
         [ColorUsage(false, true)] public Color neonNight = new Color(2.4f, 0.7f, 1.8f, 1f);
 
         private static readonly int EmissiveColorId = Shader.PropertyToID("_EmissionColor");
-        private readonly MaterialPropertyBlock _mpb = new MaterialPropertyBlock();
+        // Нельзя создавать в инициализаторе поля: Unity бросает «CreateImpl is not allowed to be
+        // called from a MonoBehaviour constructor» и batchmode-сборка падает с кодом 1.
+        private MaterialPropertyBlock _mpb;
 
         private float Hour => useGameTime && GameManager.Instance != null ? GameManager.Instance.TimeOfDay : previewHour;
 
@@ -46,6 +48,7 @@ namespace NeonDistrict.World
 
         public void Apply(float hour)
         {
+            if (_mpb == null) _mpb = new MaterialPropertyBlock();
             float t = Mathf.Repeat(hour / 24f, 1f);
             float sunAngle = (hour - 6f) / 24f * 360f;      // 6:00 — восход
             bool day = hour > 5.6f && hour < 19.4f;
