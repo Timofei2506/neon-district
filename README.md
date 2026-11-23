@@ -23,6 +23,8 @@
 | Меню, пауза, сохранение/загрузка (JSON) | ✅ |
 | Стрельба: raycast, урон, гильзы/вспышка (заготовка) | ✅ |
 | Пост-обработка: ACES, bloom, виньетка, цветокоррекция, SSAO | ✅ |
+| **Полиция**: 3 патруля (GLS / AMG / Polestar) с ливреей, мигалками, синтезированной сиреной и ИИ погони | ✅ |
+| **GitHub Actions**: автосборка Windows + Linux, артефакты и релизы по тегу | ✅ |
 
 Дальше по плану: миссии и диалоги, угон/полиция с погоней, экономика и магазины, радио и лицензионный саундтрек, Motion Matching для персонажа, погодные пресеты.
 
@@ -40,6 +42,38 @@
 6. Меню **Neon District → 3) Build Playground Scene** → **Play**.
 
 Если сцена не собралась — откройте `Assets/Scenes/Playground.unity` вручную, она создаётся генератором.
+
+## Полиция и розыск
+Всё в `Assets/Scripts/Police`:
+
+| Файл | Что делает |
+|---|---|
+| `PoliceLivery.cs` | превращает любую машину в патруль: белый кузов, ливрея на бортах (декали), LED-балка, отбойник, антенна. Мигалки — красно/синяя последовательность как у настоящей полиции |
+| `PoliceAI.cs` | догоняет игрока «наперерез», таранит, прижимает; при остановке рядом — задержание со штрафом `$250 × уровень` |
+| `PoliceSpawner.cs` | уровень розыска 1 → 1 патруль, 3 → 2, 5 → 3; спавн за спиной, чтобы не появлялись в кадре |
+| `PoliceSiren.cs` | двухтональная сирена, **синтезируется в рантайме** (не нужны аудиофайлы) |
+
+Патрули собираются из уже имеющихся машин: `PoliceCar` (Mercedes GLS), `Police_AMG` (C63), `Police_Polestar`.
+Ливрея и эмиссия мигалок генерируются скриптом `Assets/Art/Vehicles/Textures/make_police_textures.py`.
+
+## CI/CD (GitHub Actions)
+| Workflow | Что делает |
+|---|---|
+| `.github/workflows/verify.yml` | 1–2 мин: проверка структуры, JSON/`.inputactions`, санитайзинг C# (`tools/check_csharp.py`) |
+| `.github/workflows/build.yml` | сборка **Windows x64** и **Linux x64** через `game-ci/unity-builder`, артефакты 30 дней, релиз при пуше тега `v*` |
+
+Сборка вызывает `NeonDistrict.EditorTools.CIBuild.BuildWindows` — метод сам готовит проект (URP, префабы, сцена) и собирает билд.
+
+### Что нужно один раз настроить
+1. **Secrets** в GitHub → Settings → Secrets and variables → Actions:
+   - `UNITY_LICENSE` — содержимое файла лицензии `.ulf` (Personal: получите через `game-ci/unity-request-activation-file` + активация на license.unity3d.com);
+   - либо `UNITY_EMAIL` + `UNITY_PASSWORD` (+ `UNITY_SERIAL` для Pro).
+2. Проверить версию: `UNITY_VERSION` берётся из `ProjectVersion.txt` и по умолчанию `6000.3.29f1` (вход workflow_dispatch позволяет переопределить).
+3. Запустить: **Actions → Build → Run workflow**, либо пуш в `master`, либо тег:
+   ```
+   git tag v0.1.0 && git push origin v0.1.0
+   ```
+   → появится GitHub Release с `NeonDistrict-Windows.zip`.
 
 ## Управление
 | Действие | Клавиша |

@@ -121,6 +121,8 @@ namespace NeonDistrict.Core
         {
             Wanted = 0;
             OnWantedChanged?.Invoke(0);
+            var spawner = FindFirstObjectByType<NeonDistrict.Police.PoliceSpawner>();
+            if (spawner != null) spawner.ClearAll();
         }
 
         public void ResetWorldState()

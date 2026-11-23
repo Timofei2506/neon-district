@@ -111,6 +111,7 @@ namespace NeonDistrict.EditorTools
                 "Assets/Resources/NeonDistrict/Vehicle_GLS.prefab",
                 "Assets/Resources/NeonDistrict/Vehicle_Polestar.prefab",
                 "Assets/Resources/NeonDistrict/Vehicle_Corvette.prefab",
+                "Assets/Resources/NeonDistrict/Vehicle_AMG.prefab",
             };
             for (int i = 0; i < garageCars.Length; i++)
             {
@@ -120,6 +121,14 @@ namespace NeonDistrict.EditorTools
                 car.transform.position = playerPos + new Vector3(4f + i * 5f, 0.1f, 3f);
                 car.transform.rotation = Quaternion.Euler(0f, 210f, 0f);
             }
+
+            var police = systems.AddComponent<NeonDistrict.Police.PoliceSpawner>();
+            police.policeCarPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/PoliceCar.prefab");
+            police.extraPolicePrefabs = new[]
+            {
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Police_AMG.prefab"),
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Police_Polestar.prefab"),
+            };
 
             var dnc = systems.AddComponent<World.DayNightCycle>();
             dnc.sun = sun;

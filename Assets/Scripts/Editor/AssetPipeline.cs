@@ -26,6 +26,7 @@ namespace NeonDistrict.EditorTools
         private const string MercedesFbx = "Assets/Art/Vehicles/Mercedes_GLS.fbx";
         private const string PolestarFbx = "Assets/Art/Vehicles/Polestar_4.fbx";
         private const string CorvetteFbx = "Assets/Art/Vehicles/Corvette_Stingray.fbx";
+        private const string AmgFbx = "Assets/Art/Vehicles/Mercedes_AMG_C63.fbx";
         private const string ResFolder = "Assets/Resources/NeonDistrict";
 
         [MenuItem("Neon District/2) Build Prefabs", priority = 2)]
@@ -35,14 +36,20 @@ namespace NeonDistrict.EditorTools
             ConfigureCharacterImporter(PlayerFbx, "Player_Male_Albedo.jpg");
             ConfigureCharacterImporter(NpcFbx, "NPC_Female_Albedo.jpg");
             ConfigureVehicleImporter(MercedesFbx);
+            ConfigurePoliceTextures();
             ConfigureVehicleImporter(PolestarFbx);
             ConfigureVehicleImporter(CorvetteFbx);
+            ConfigureVehicleImporter(AmgFbx);
 
             BuildPlayerPrefab();
             BuildPedestrianPrefab();
             BuildVehiclePrefab(MercedesFbx, "Vehicle_GLS.prefab", 2400f, 34f, 200f);
             BuildVehiclePrefab(PolestarFbx, "Vehicle_Polestar.prefab", 2350f, 32f, 190f);
             BuildVehiclePrefab(CorvetteFbx, "Vehicle_Corvette.prefab", 1600f, 42f, 240f);
+            BuildVehiclePrefab(AmgFbx, "Vehicle_AMG.prefab", 1750f, 40f, 250f);
+            BuildPoliceCarPrefab();
+            BuildPoliceFromBase("Vehicle_AMG.prefab", "Police_AMG.prefab");
+            BuildPoliceFromBase("Vehicle_Polestar.prefab", "Police_Polestar.prefab");
             CopyCityResources();
 
             AssetDatabase.SaveAssets();
@@ -102,6 +109,26 @@ namespace NeonDistrict.EditorTools
                     for (int i = 0; i < mats.Length; i++) mats[i] = mat;
                     r.sharedMaterials = mats;
                 }
+            }
+        }
+
+        /// <summary>Ливрея и эмиссия: альфа для декалей, sRGB, мипы.</summary>
+        private static void ConfigurePoliceTextures()
+        {
+            foreach (var name in new[] { "Police_Livery.png", "Police_LightBar_Emission.png" })
+            {
+                var path = "Assets/Art/Vehicles/Textures/" + name;
+                var ti = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (ti == null) continue;
+                ti.textureType = TextureImporterType.Default;
+                ti.alphaIsTransparency = true;
+                ti.alphaSource = TextureImporterAlphaSource.FromInput;
+                ti.sRGBTexture = true;
+                ti.mipmapEnabled = true;
+                ti.maxTextureSize = 2048;
+                ti.wrapMode = TextureWrapMode.Clamp;
+                ti.textureCompression = TextureImporterCompression.CompressedHQ;
+                ti.SaveAndReimport();
             }
         }
 
@@ -300,6 +327,56 @@ namespace NeonDistrict.EditorTools
             vc.brakeLights = new[] { bl };
 
             Save(root, prefabName);
+        }
+
+        /// <summary>
+        /// Полицейский внедорожник: копия Mercedes GLS с ливреей, мигалками,
+        /// сиреной и ИИ погони. Готов к спавну PoliceSpawner'ом.
+        /// </summary>
+        private static void BuildPoliceCarPrefab() => BuildPoliceFromBase("Vehicle_GLS.prefab", "PoliceCar.prefab");
+
+        /// <summary>Копия любой машины + полицейский комплект (ливрея, мигалки, сирена, ИИ).</summary>
+        private static void BuildPoliceFromBase(string basePrefabName, string outputName)
+        {
+            var basePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ResFolder + "/" + basePrefabName);
+            if (basePrefab == null) { Debug.LogWarning("[Neon District] нет " + basePrefabName); return; }
+
+            var root = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);
+            root.name = Path.GetFileNameWithoutExtension(outputName);
+
+            var livery = root.AddComponent<NeonDistrict.Police.PoliceLivery>();
+            livery.liveryTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Vehicles/Textures/Police_Livery.png");
+            livery.lightBarEmission = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Vehicles/Textures/Police_LightBar_Emission.png");
+            livery.bodyWhiteMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Materials/Police_WhitePaint.mat");
+            if (livery.bodyWhiteMaterial == null)
+            {
+                var m = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                m.name = "Police_WhitePaint";
+                m.color = new Color(0.94f, 0.95f, 0.96f);
+                m.SetFloat("_Metallic", 0.25f);
+                m.SetFloat("_Smoothness", 0.85f);
+                Directory.CreateDirectory("Assets/Art/Materials");
+                AssetDatabase.CreateAsset(m, "Assets/Art/Materials/Police_WhitePaint.mat");
+                livery.bodyWhiteMaterial = m;
+            }
+
+            var siren = root.AddComponent<NeonDistrict.Police.PoliceSiren>();
+            var ai = root.AddComponent<NeonDistrict.Police.PoliceAI>();
+            ai.livery = livery;
+
+            // физика погони: чуть мощнее и устойчивее гражданской
+            var vc = root.GetComponent<NeonDistrict.Vehicles.VehicleController>();
+            if (vc != null)
+            {
+                vc.enginePower = 40f;
+                vc.maxSpeedKmh = 195f;
+                vc.grip = 1.15f;
+                vc.bodyVisual = root.transform.Find("Visual") != null ? root.transform.Find("Visual") : vc.bodyVisual;
+            }
+
+            PrefabUtility.SaveAsPrefabAsset(root, ResFolder + "/" + outputName);
+            Object.DestroyImmediate(root);
+            Debug.Log("[Neon District] префаб: " + outputName + " (ливрея + мигалки + сирена + ИИ)");
         }
 
         private static void Save(GameObject root, string name)

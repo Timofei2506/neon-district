@@ -1,0 +1,64 @@
+name: Verify project health
+
+# Быстрые проверки без Unity: структура проекта, JSON-ассеты, C#-санитайзинг.
+# Идёт 1–2 минуты, ловит 90% «сломал репозиторий» до тяжёлой сборки.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Проверка структуры проекта
+        run: |
+          set -e
+          echo "→ обязательные файлы"
+          for f in Packages/manifest.json ProjectSettings/ProjectVersion.txt README.md; do
+            test -f "$f" || { echo "ОТСУТСТВУЕТ: $f"; exit 1; }
+          done
+          echo "→ сцена в билд-листе описывается кодом (Assets/Scripts/Editor/SceneSetup.cs)"
+          test -f Assets/Scripts/Editor/SceneSetup.cs || { echo "нет SceneSetup.cs"; exit 1; }
+          echo "→ ассеты города/машин/персонажей"
+          test -f Assets/Art/Manhattan/Manhattan.fbx || { echo "нет Манхэттена"; exit 1; }
+          test -f Assets/Art/Manhattan/manhattan_layout.json || { echo "нет layout.json"; exit 1; }
+          test -f Assets/Art/Vehicles/Mercedes_GLS.fbx || { echo "нет Mercedes"; exit 1; }
+          test -f Assets/Art/Characters/Player_Male.fbx || { echo "нет игрока"; exit 1; }
+          test -f Assets/Art/Vehicles/Textures/Police_Livery.png || { echo "нет ливреи"; exit 1; }
+          echo "OK"
+
+      - name: Валидация JSON
+        run: |
+          set -e
+          python3 - <<'PY'
+          import json, glob, sys
+          bad = []
+          for path in glob.glob('**/*.json', recursive=True):
+              if '/Library/' in path or '/Temp/' in path:
+                  continue
+              try:
+                  json.load(open(path, encoding='utf-8'))
+              except Exception as e:
+                  bad.append(f'{path}: {e}')
+          for path in glob.glob('**/*.inputactions', recursive=True):
+              try:
+                  json.load(open(path, encoding='utf-8'))
+              except Exception as e:
+                  bad.append(f'{path}: {e}')
+          if bad:
+              print('\n'.join(bad)); sys.exit(1)
+          print('все JSON-файлы валидны')
+          PY
+
+      - name: Санити-чек C# (скрипт tools/check_csharp.py)
+        run: python3 tools/check_csharp.py
+
+      - name: Проверка лицензий ассетов
+        run: |
+          test -f Assets/Art/City/SEOUL_KIT_LICENSE.txt && echo "Seoul Kit: лицензия на месте" || echo "ВНИМАНИЕ: нет текста лицензии Seoul Kit"

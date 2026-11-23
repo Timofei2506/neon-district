@@ -68,6 +68,9 @@ namespace NeonDistrict.Vehicles
         private float _wheelSpin;
         private bool _braking;
 
+        /// <summary>Автопилот (полиция/трафик): не сбрасывать ввод в FixedUpdate.</summary>
+        public bool autopilot;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody>();
@@ -77,9 +80,25 @@ namespace NeonDistrict.Vehicles
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
 
+        /// <summary>Автопилот для полиции и трафика: рулит к точке и держит газ.</summary>
+        public void DriveTo(Vector3 worldTarget, float targetSpeedKmh, float steerGain = 2.4f)
+        {
+            var toTarget = worldTarget - transform.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude < 0.01f) return;
+
+            float desiredYaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
+            float deltaYaw = Mathf.DeltaAngle(transform.eulerAngles.y, desiredYaw);
+            _steer = Mathf.Clamp(deltaYaw * steerGain, -maxSteerAngle, maxSteerAngle);
+            float speedError = targetSpeedKmh - SpeedKmh;
+            _throttle = Mathf.Clamp(speedError / 25f, -1f, 1f);
+            _handbrake = Mathf.Abs(deltaYaw) > 65f && SpeedKmh > 45f ? 1f : 0f;
+        }
+
         /// <summary>Вызывается из PlayerController каждый кадр, когда игрок за рулём.</summary>
         public void Drive(Vector2 input, bool boost)
         {
+            autopilot = false;
             _throttle = input.y;
             var targetSteer = input.x * maxSteerAngle * (1f - 0.45f * Mathf.Clamp01(SpeedKmh / maxSpeedKmh));
             _steer = Mathf.Lerp(_steer, targetSteer, steerSpeed * Time.deltaTime);
@@ -88,7 +107,7 @@ namespace NeonDistrict.Vehicles
 
         private void FixedUpdate()
         {
-            if (Driver == null)
+            if (Driver == null && !autopilot)
             {
                 _throttle = 0f;
                 _steer = Mathf.Lerp(_steer, 0f, 2f * Time.deltaTime);
