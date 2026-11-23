@@ -105,6 +105,11 @@
 bash tools/cscheck/run.sh      # локально; в CI то же самое делает verify.yml
 ```
 
+### Статус CI
+`Build (Windows / Linux)` — **зелёный** (run [45174012726](https://github.com/Timofei2506/neon-district/actions/runs/45174012726)):
+`NeonDistrict-Windows` — 180 МБ, `NeonDistrict-Linux` — 122 МБ, артефакты живут 30 дней.
+Тег вида `v0.1.0` дополнительно собирает GitHub Release.
+
 ### Активация Unity в CI (Unity Personal, файл лицензии не нужен)
 С Unity 6 **ручная активация Personal закрыта** (`license.unity3d.com/manual` обслуживает только
 Enterprise/Industry), а `.ulf` из Unity Hub **привязан к машине** — в облаке он даёт
@@ -117,7 +122,8 @@ Enterprise/Industry), а `.ulf` из Unity Hub **привязан к машин�
 
 Секреты: https://github.com/Timofei2506/neon-district/settings/secrets/actions
 
-Сборка идёт через CLI (не `unity-builder@v4` — он жёстко требует `.ulf` или серийник):
+Сборка идёт через CLI, а не `unity-builder@v4` — тот в принципе не умеет Personal
+(в его коде без `.ulf`/серийника бросается `Missing Unity License File and no Serial`):
 
 ```bash
 game-ci activate --engine unity --unityLicensingMethod personal \
@@ -128,12 +134,14 @@ game-ci return-license --engine unity --unityLicensingMethod personal   # шаг
 ```
 
 Что важно знать:
-- каждый прогон занимает **одно место** на аккаунте, шаг *Return Unity license* возвращает его;
-  не запускайте Windows- и Linux-сборки параллельно (в workflow они идут последовательно);
+- каждый прогон занимает **одно место** (seat) на аккаунте, шаг *Return Unity license* возвращает его;
+  Windows- и Linux-джобы идут последовательно, параллельные прогоны запускать не стоит;
 - если место «залипло» — откройте Unity Hub локально и выйдите из аккаунта (на Personal выход = возврат);
 - аккаунт с 2FA в CI будет требовать код — лучше отдельный CI-аккаунт без 2FA;
 - образы фиксированы явно: `linux-il2cpp` **не содержит** Windows-модуль, для `StandaloneWindows64`
-  нужен `windows-mono`, для активации достаточно `base`.
+  нужен `windows-mono`, для активации достаточно `base`;
+- `CIBuild` печатает блок `# Build results #` с `Errors:`/`Size:` — именно его парсит game-ci,
+  без него успешная сборка помечается как «There was an error building the project».
 
 ## Управление
 | Действие | Клавиша |
