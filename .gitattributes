@@ -1,0 +1,9 @@
+* text=auto
+*.cs text
+*.json text
+*.fbx binary
+*.glb binary
+*.jpg binary
+*.png binary
+*.asset binary
+*.unity binary

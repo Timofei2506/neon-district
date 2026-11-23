@@ -1,0 +1,51 @@
+Seoul City Builder Kit — Royalty-Free Asset Licence (v1.1.0)
+Copyright (c) 2026 atimearound. All rights reserved except as granted below.
+
+This licence applies to everything in this download (the full pack and the
+free sample alike). By downloading or using the assets you accept it.
+
+1. What you may do
+   You get a perpetual, worldwide, non-exclusive, royalty-free licence to use
+   the 3D models, textures and other files in this pack ("the Assets") in your
+   own projects — commercial or non-commercial — including games, apps,
+   interactive experiences, renders, images, animations, films and videos.
+   You may modify the Assets in any way and combine them with your own work.
+   No credit is required. A mention such as "Assets: Seoul City Builder Kit by
+   atimearound" is appreciated but optional.
+
+2. What you may not do
+   a) Resell, sublicense, share, give away or otherwise redistribute the Assets
+      themselves, modified or unmodified, on their own or as part of another
+      asset pack, template, kit, model library or marketplace listing.
+   b) Ship the Assets in a form whose main purpose is to let other people
+      extract and reuse them (normal packaging inside a compiled game, app,
+      render or video is fine; publishing the source files is not).
+   c) Use the Assets, or allow them to be used, in datasets for training,
+      fine-tuning or evaluating machine-learning or generative-AI models.
+   d) Claim the Assets as your own original creation.
+
+3. Teams and clients
+   One licence covers one person, or one team working on the same project(s).
+   You may hand the Assets to contractors working on your project; they may
+   not use them for anything else. You may deliver a finished product that
+   contains the Assets to a client (rule 2 still applies to the client).
+
+4. Third-party material
+   Some textures and photo-derived cards are based on CC0 (public-domain)
+   sources listed in THIRD_PARTY_NOTICES.md. Those sources stay public domain;
+   this licence covers the pack as a whole and the author's own work in it.
+
+5. Real places and brands
+   The buildings, signs and vehicles are generic designs inspired by Seoul
+   streetscapes. They do not depict specific real buildings, brands, logos or
+   trademarks, and carry no lettering.
+
+6. No warranty
+   The Assets are provided "as is", without warranty of any kind. The licensor
+   is not liable for any damages arising from their use.
+
+7. Termination
+   If you break these terms the licence ends and you must stop using the
+   Assets in new work. Products you already released stay licensed.
+
+Licensor: atimearound

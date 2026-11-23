@@ -1,0 +1,2149 @@
+{
+ "pack": "Seoul City Builder Kit",
+ "version": "1.1.0",
+ "units": "metres",
+ "axes": {
+  "x": "right",
+  "y": "up",
+  "z": "front (+Z faces the street)"
+ },
+ "origin": "ground (y = 0), footprint centre unless noted",
+ "lodNodes": "<id>_LOD0, <id>_LOD1, <id>_LOD2",
+ "assets": [
+  {
+   "id": "tree_ginkgo_0",
+   "set": "trees",
+   "category": "ginkgo",
+   "source": "own",
+   "files": {
+    "glb": "glb/trees/tree_ginkgo_0.glb",
+    "fbx": "fbx/trees/tree_ginkgo_0.fbx",
+    "glbBytes": 1376488,
+    "fbxBytes": 1380108
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 2100,
+     "node": "tree_ginkgo_0_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 16,
+     "node": "tree_ginkgo_0_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 7.19,
+    "d": 8.07,
+    "h": 12.78
+   },
+   "bounds": {
+    "min": [
+     -3.5,
+     0,
+     -4.45
+    ],
+    "max": [
+     3.69,
+     12.78,
+     3.63
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) atlas",
+     "w": 2560,
+     "h": 1024,
+     "bytes": 1250045
+    }
+   ],
+   "preview": "previews/trees/tree_ginkgo_0.jpg"
+  },
+  {
+   "id": "tree_zelkova_0",
+   "set": "trees",
+   "category": "zelkova",
+   "source": "own",
+   "files": {
+    "glb": "glb/trees/tree_zelkova_0.glb",
+    "fbx": "fbx/trees/tree_zelkova_0.fbx",
+    "glbBytes": 1376972,
+    "fbxBytes": 1380988
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 2100,
+     "node": "tree_zelkova_0_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 16,
+     "node": "tree_zelkova_0_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 13.35,
+    "d": 14.15,
+    "h": 10.87
+   },
+   "bounds": {
+    "min": [
+     -6.21,
+     -0.01,
+     -6.5
+    ],
+    "max": [
+     7.14,
+     10.86,
+     7.66
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) atlas",
+     "w": 2560,
+     "h": 1024,
+     "bytes": 1250045
+    }
+   ],
+   "preview": "previews/trees/tree_zelkova_0.jpg"
+  },
+  {
+   "id": "tree_plane_0",
+   "set": "trees",
+   "category": "plane",
+   "source": "own",
+   "files": {
+    "glb": "glb/trees/tree_plane_0.glb",
+    "fbx": "fbx/trees/tree_plane_0.fbx",
+    "glbBytes": 1373852,
+    "fbxBytes": 1378412
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 2004,
+     "node": "tree_plane_0_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 16,
+     "node": "tree_plane_0_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 14.71,
+    "d": 14.04,
+    "h": 13.12
+   },
+   "bounds": {
+    "min": [
+     -8.11,
+     -0.02,
+     -7.16
+    ],
+    "max": [
+     6.6,
+     13.1,
+     6.88
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) atlas",
+     "w": 2560,
+     "h": 1024,
+     "bytes": 1250045
+    }
+   ],
+   "preview": "previews/trees/tree_plane_0.jpg"
+  },
+  {
+   "id": "tree_pine_0",
+   "set": "trees",
+   "category": "pine",
+   "source": "own",
+   "files": {
+    "glb": "glb/trees/tree_pine_0.glb",
+    "fbx": "fbx/trees/tree_pine_0.fbx",
+    "glbBytes": 1344628,
+    "fbxBytes": 1352124
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 1530,
+     "node": "tree_pine_0_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 16,
+     "node": "tree_pine_0_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 11.27,
+    "d": 11.16,
+    "h": 10.69
+   },
+   "bounds": {
+    "min": [
+     -5.6,
+     -0.03,
+     -5.71
+    ],
+    "max": [
+     5.67,
+     10.66,
+     5.45
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) atlas",
+     "w": 2560,
+     "h": 1024,
+     "bytes": 1250045
+    }
+   ],
+   "preview": "previews/trees/tree_pine_0.jpg"
+  },
+  {
+   "id": "prop_bench",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_bench.glb",
+    "fbx": "fbx/props/prop_bench.fbx",
+    "glbBytes": 37000,
+    "fbxBytes": 26812
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 340,
+     "node": "prop_bench_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 64,
+     "node": "prop_bench_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.51,
+    "d": 1.8,
+    "h": 0.85
+   },
+   "bounds": {
+    "min": [
+     -0.25,
+     0,
+     -0.9
+    ],
+    "max": [
+     0.26,
+     0.85,
+     0.9
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_bench.jpg"
+  },
+  {
+   "id": "prop_busStop",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_busStop.glb",
+    "fbx": "fbx/props/prop_busStop.fbx",
+    "glbBytes": 109328,
+    "fbxBytes": 49932
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 1228,
+     "node": "prop_busStop_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 62,
+     "node": "prop_busStop_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 2.07,
+    "d": 6.54,
+    "h": 2.9
+   },
+   "bounds": {
+    "min": [
+     -0.95,
+     0,
+     -3.1
+    ],
+    "max": [
+     1.12,
+     2.9,
+     3.44
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_busStop.jpg"
+  },
+  {
+   "id": "prop_streetLight",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_streetLight.glb",
+    "fbx": "fbx/props/prop_streetLight.fbx",
+    "glbBytes": 44688,
+    "fbxBytes": 41164
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 784,
+     "node": "prop_streetLight_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 66,
+     "node": "prop_streetLight_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 2.68,
+    "d": 0.56,
+    "h": 10.11
+   },
+   "bounds": {
+    "min": [
+     -0.28,
+     0,
+     -0.28
+    ],
+    "max": [
+     2.4,
+     10.11,
+     0.28
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_streetLight.jpg"
+  },
+  {
+   "id": "prop_trafficLight3",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_trafficLight3.glb",
+    "fbx": "fbx/props/prop_trafficLight3.fbx",
+    "glbBytes": 68292,
+    "fbxBytes": 45260
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 1030,
+     "node": "prop_trafficLight3_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 76,
+     "node": "prop_trafficLight3_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 7.32,
+    "d": 0.72,
+    "h": 6.7
+   },
+   "bounds": {
+    "min": [
+     -0.3,
+     0,
+     -0.42
+    ],
+    "max": [
+     7.02,
+     6.7,
+     0.3
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_trafficLight3.jpg"
+  },
+  {
+   "id": "prop_guardrail",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_guardrail.glb",
+    "fbx": "fbx/props/prop_guardrail.fbx",
+    "glbBytes": 39076,
+    "fbxBytes": 33788
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 602,
+     "node": "prop_guardrail_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 28,
+     "node": "prop_guardrail_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.29,
+    "d": 8,
+    "h": 0.84
+   },
+   "bounds": {
+    "min": [
+     -0.17,
+     0,
+     -4
+    ],
+    "max": [
+     0.13,
+     0.84,
+     4
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_guardrail.jpg"
+  },
+  {
+   "id": "prop_fence",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_fence.glb",
+    "fbx": "fbx/props/prop_fence.fbx",
+    "glbBytes": 7364,
+    "fbxBytes": 18748
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 40,
+     "node": "prop_fence_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 30,
+     "node": "prop_fence_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.08,
+    "d": 2.4,
+    "h": 1.25
+   },
+   "bounds": {
+    "min": [
+     -0.04,
+     0,
+     -1.2
+    ],
+    "max": [
+     0.04,
+     1.25,
+     1.2
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_fence.jpg"
+  },
+  {
+   "id": "prop_parkLamp",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_parkLamp.glb",
+    "fbx": "fbx/props/prop_parkLamp.fbx",
+    "glbBytes": 14280,
+    "fbxBytes": 24988
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 164,
+     "node": "prop_parkLamp_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 46,
+     "node": "prop_parkLamp_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.64,
+    "d": 0.64,
+    "h": 3.85
+   },
+   "bounds": {
+    "min": [
+     -0.32,
+     0,
+     -0.32
+    ],
+    "max": [
+     0.32,
+     3.85,
+     0.32
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_parkLamp.jpg"
+  },
+  {
+   "id": "prop_medianBlock",
+   "set": "props",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/props/prop_medianBlock.glb",
+    "fbx": "fbx/props/prop_medianBlock.fbx",
+    "glbBytes": 18252,
+    "fbxBytes": 26812
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 248,
+     "node": "prop_medianBlock_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 10,
+     "node": "prop_medianBlock_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.6,
+    "d": 8,
+    "h": 0.85
+   },
+   "bounds": {
+    "min": [
+     -0.3,
+     0,
+     -4
+    ],
+    "max": [
+     0.3,
+     0.85,
+     4
+    ]
+   },
+   "textures": [],
+   "preview": "previews/props/prop_medianBlock.jpg"
+  },
+  {
+   "id": "sign_stop",
+   "set": "signs",
+   "category": "roadside",
+   "source": "own",
+   "files": {
+    "glb": "glb/signs/sign_stop.glb",
+    "fbx": "fbx/signs/sign_stop.fbx",
+    "glbBytes": 44344,
+    "fbxBytes": 58588
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 124,
+     "node": "sign_stop_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 36,
+     "node": "sign_stop_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.66,
+    "d": 0.11,
+    "h": 2.7
+   },
+   "bounds": {
+    "min": [
+     -0.33,
+     0,
+     -0.05
+    ],
+    "max": [
+     0.33,
+     2.7,
+     0.06
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) sign_stop",
+     "w": 256,
+     "h": 256,
+     "bytes": 31682
+    }
+   ],
+   "preview": "previews/signs/sign_stop.jpg"
+  },
+  {
+   "id": "sign_yield",
+   "set": "signs",
+   "category": "roadside",
+   "source": "own",
+   "files": {
+    "glb": "glb/signs/sign_yield.glb",
+    "fbx": "fbx/signs/sign_yield.fbx",
+    "glbBytes": 44972,
+    "fbxBytes": 59500
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 104,
+     "node": "sign_yield_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 36,
+     "node": "sign_yield_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.74,
+    "d": 0.11,
+    "h": 2.7
+   },
+   "bounds": {
+    "min": [
+     -0.37,
+     0,
+     -0.05
+    ],
+    "max": [
+     0.37,
+     2.7,
+     0.06
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) sign_yield",
+     "w": 256,
+     "h": 256,
+     "bytes": 32940
+    }
+   ],
+   "preview": "previews/signs/sign_yield.jpg"
+  },
+  {
+   "id": "sign_noEntry",
+   "set": "signs",
+   "category": "roadside",
+   "source": "own",
+   "files": {
+    "glb": "glb/signs/sign_noEntry.glb",
+    "fbx": "fbx/signs/sign_noEntry.fbx",
+    "glbBytes": 37988,
+    "fbxBytes": 54252
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 160,
+     "node": "sign_noEntry_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 37,
+     "node": "sign_noEntry_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.61,
+    "d": 0.11,
+    "h": 2.66
+   },
+   "bounds": {
+    "min": [
+     -0.3,
+     0,
+     -0.05
+    ],
+    "max": [
+     0.3,
+     2.66,
+     0.06
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) sign_noEntry",
+     "w": 256,
+     "h": 256,
+     "bytes": 25375
+    }
+   ],
+   "preview": "previews/signs/sign_noEntry.jpg"
+  },
+  {
+   "id": "sign_crosswalk",
+   "set": "signs",
+   "category": "roadside",
+   "source": "own",
+   "files": {
+    "glb": "glb/signs/sign_crosswalk.glb",
+    "fbx": "fbx/signs/sign_crosswalk.fbx",
+    "glbBytes": 38156,
+    "fbxBytes": 52844
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 108,
+     "node": "sign_crosswalk_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 36,
+     "node": "sign_crosswalk_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.61,
+    "d": 0.11,
+    "h": 2.66
+   },
+   "bounds": {
+    "min": [
+     -0.3,
+     0,
+     -0.05
+    ],
+    "max": [
+     0.3,
+     2.66,
+     0.06
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) sign_crosswalk",
+     "w": 256,
+     "h": 256,
+     "bytes": 26265
+    }
+   ],
+   "preview": "previews/signs/sign_crosswalk.jpg"
+  },
+  {
+   "id": "sign_warnBump",
+   "set": "signs",
+   "category": "roadside",
+   "source": "own",
+   "files": {
+    "glb": "glb/signs/sign_warnBump.glb",
+    "fbx": "fbx/signs/sign_warnBump.fbx",
+    "glbBytes": 46828,
+    "fbxBytes": 61676
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 104,
+     "node": "sign_warnBump_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 36,
+     "node": "sign_warnBump_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.79,
+    "d": 0.11,
+    "h": 2.72
+   },
+   "bounds": {
+    "min": [
+     -0.39,
+     0,
+     -0.05
+    ],
+    "max": [
+     0.39,
+     2.72,
+     0.06
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) sign_warnBump",
+     "w": 256,
+     "h": 256,
+     "bytes": 34902
+    }
+   ],
+   "preview": "previews/signs/sign_warnBump.jpg"
+  },
+  {
+   "id": "sign_oneWay",
+   "set": "signs",
+   "category": "roadside",
+   "source": "own",
+   "files": {
+    "glb": "glb/signs/sign_oneWay.glb",
+    "fbx": "fbx/signs/sign_oneWay.fbx",
+    "glbBytes": 40788,
+    "fbxBytes": 54892
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 110,
+     "node": "sign_oneWay_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 36,
+     "node": "sign_oneWay_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.9,
+    "d": 0.13,
+    "h": 2.71
+   },
+   "bounds": {
+    "min": [
+     -0.45,
+     0,
+     -0.06
+    ],
+    "max": [
+     0.45,
+     2.71,
+     0.07
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) sign_oneWay",
+     "w": 256,
+     "h": 256,
+     "bytes": 28588
+    }
+   ],
+   "preview": "previews/signs/sign_oneWay.jpg"
+  },
+  {
+   "id": "detail_bollard",
+   "set": "details",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_bollard.glb",
+    "fbx": "fbx/details/detail_bollard.fbx",
+    "glbBytes": 45628,
+    "fbxBytes": 62492
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 120,
+     "node": "detail_bollard_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 24,
+     "node": "detail_bollard_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.19,
+    "d": 0.19,
+    "h": 0.86
+   },
+   "bounds": {
+    "min": [
+     -0.09,
+     0,
+     -0.09
+    ],
+    "max": [
+     0.09,
+     0.86,
+     0.09
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_bollard",
+     "w": 256,
+     "h": 256,
+     "bytes": 34790
+    }
+   ],
+   "preview": "previews/details/detail_bollard.jpg"
+  },
+  {
+   "id": "detail_hydrant",
+   "set": "details",
+   "category": "street",
+   "source": "Poly Haven CC0 derivative (fire_hydrant)",
+   "files": {
+    "glb": "glb/details/detail_hydrant.glb",
+    "fbx": "fbx/details/detail_hydrant.fbx",
+    "glbBytes": 138108,
+    "fbxBytes": 155820
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 320,
+     "node": "detail_hydrant_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 50,
+     "node": "detail_hydrant_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.27,
+    "d": 0.32,
+    "h": 0.8
+   },
+   "bounds": {
+    "min": [
+     -0.14,
+     0,
+     -0.16
+    ],
+    "max": [
+     0.14,
+     0.8,
+     0.16
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_hydrant",
+     "w": 256,
+     "h": 256,
+     "bytes": 105558
+    }
+   ],
+   "preview": "previews/details/detail_hydrant.jpg"
+  },
+  {
+   "id": "detail_streetBin",
+   "set": "details",
+   "category": "clutter",
+   "source": "Poly Haven CC0 derivative (metal_trash_can)",
+   "files": {
+    "glb": "glb/details/detail_streetBin.glb",
+    "fbx": "fbx/details/detail_streetBin.fbx",
+    "glbBytes": 78848,
+    "fbxBytes": 96972
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 299,
+     "node": "detail_streetBin_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 39,
+     "node": "detail_streetBin_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.63,
+    "d": 0.57,
+    "h": 0.91
+   },
+   "bounds": {
+    "min": [
+     -0.32,
+     0,
+     -0.29
+    ],
+    "max": [
+     0.32,
+     0.91,
+     0.28
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_streetBin",
+     "w": 256,
+     "h": 256,
+     "bytes": 54942
+    }
+   ],
+   "preview": "previews/details/detail_streetBin.jpg"
+  },
+  {
+   "id": "detail_trashBag",
+   "set": "details",
+   "category": "clutter",
+   "source": "Poly Haven CC0 derivative (trashbag)",
+   "files": {
+    "glb": "glb/details/detail_trashBag.glb",
+    "fbx": "fbx/details/detail_trashBag.fbx",
+    "glbBytes": 97964,
+    "fbxBytes": 116860
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 299,
+     "node": "detail_trashBag_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 50,
+     "node": "detail_trashBag_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.52,
+    "d": 0.47,
+    "h": 0.58
+   },
+   "bounds": {
+    "min": [
+     -0.26,
+     -0.01,
+     -0.23
+    ],
+    "max": [
+     0.26,
+     0.57,
+     0.23
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_trashBag",
+     "w": 256,
+     "h": 256,
+     "bytes": 75134
+    }
+   ],
+   "preview": "previews/details/detail_trashBag.jpg"
+  },
+  {
+   "id": "detail_recycleBins",
+   "set": "details",
+   "category": "clutter",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_recycleBins.glb",
+    "fbx": "fbx/details/detail_recycleBins.fbx",
+    "glbBytes": 93724,
+    "fbxBytes": 98796
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 392,
+     "node": "detail_recycleBins_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 52,
+     "node": "detail_recycleBins_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 2.6,
+    "d": 0.79,
+    "h": 1.04
+   },
+   "bounds": {
+    "min": [
+     -1.3,
+     0,
+     -0.4
+    ],
+    "max": [
+     1.3,
+     1.04,
+     0.39
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_recycleBins",
+     "w": 256,
+     "h": 256,
+     "bytes": 62407
+    }
+   ],
+   "preview": "previews/details/detail_recycleBins.jpg"
+  },
+  {
+   "id": "detail_vendingMachine",
+   "set": "details",
+   "category": "clutter",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_vendingMachine.glb",
+    "fbx": "fbx/details/detail_vendingMachine.fbx",
+    "glbBytes": 158344,
+    "fbxBytes": 174012
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 50,
+     "node": "detail_vendingMachine_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 40,
+     "node": "detail_vendingMachine_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 1.04,
+    "d": 0.82,
+    "h": 1.94
+   },
+   "bounds": {
+    "min": [
+     -0.52,
+     0,
+     -0.41
+    ],
+    "max": [
+     0.52,
+     1.94,
+     0.41
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_vendingMachine",
+     "w": 512,
+     "h": 512,
+     "bytes": 149544
+    }
+   ],
+   "preview": "previews/details/detail_vendingMachine.jpg"
+  },
+  {
+   "id": "detail_bicycle",
+   "set": "details",
+   "category": "clutter",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_bicycle.glb",
+    "fbx": "fbx/details/detail_bicycle.fbx",
+    "glbBytes": 97164,
+    "fbxBytes": 105036
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 540,
+     "node": "detail_bicycle_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 86,
+     "node": "detail_bicycle_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.54,
+    "d": 1.7,
+    "h": 1.03
+   },
+   "bounds": {
+    "min": [
+     -0.27,
+     0,
+     -0.85
+    ],
+    "max": [
+     0.27,
+     1.03,
+     0.85
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_bicycle",
+     "w": 256,
+     "h": 256,
+     "bytes": 59176
+    }
+   ],
+   "preview": "previews/details/detail_bicycle.jpg"
+  },
+  {
+   "id": "detail_electricPole",
+   "set": "details",
+   "category": "utility pole",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_electricPole.glb",
+    "fbx": "fbx/details/detail_electricPole.fbx",
+    "glbBytes": 51888,
+    "fbxBytes": 47612
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 572,
+     "node": "detail_electricPole_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 86,
+     "node": "detail_electricPole_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 2.2,
+    "d": 0.72,
+    "h": 12
+   },
+   "bounds": {
+    "min": [
+     -1.1,
+     0,
+     -0.36
+    ],
+    "max": [
+     1.1,
+     12,
+     0.37
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_electricPole",
+     "w": 256,
+     "h": 32,
+     "bytes": 4080
+    }
+   ],
+   "preview": "previews/details/detail_electricPole.jpg"
+  },
+  {
+   "id": "detail_planterBox",
+   "set": "details",
+   "category": "plants & ground",
+   "source": "Poly Haven CC0 derivative (planter_box_01)",
+   "files": {
+    "glb": "glb/details/detail_planterBox.glb",
+    "fbx": "fbx/details/detail_planterBox.fbx",
+    "glbBytes": 108048,
+    "fbxBytes": 126892
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 300,
+     "node": "detail_planterBox_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 36,
+     "node": "detail_planterBox_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.91,
+    "d": 0.41,
+    "h": 0.42
+   },
+   "bounds": {
+    "min": [
+     -0.46,
+     0,
+     -0.2
+    ],
+    "max": [
+     0.45,
+     0.42,
+     0.21
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_planterBox",
+     "w": 256,
+     "h": 256,
+     "bytes": 83833
+    }
+   ],
+   "preview": "previews/details/detail_planterBox.jpg"
+  },
+  {
+   "id": "detail_pottedPlant",
+   "set": "details",
+   "category": "plants & ground",
+   "source": "Poly Haven CC0 derivative (potted_plant_02)",
+   "files": {
+    "glb": "glb/details/detail_pottedPlant.glb",
+    "fbx": "fbx/details/detail_pottedPlant.fbx",
+    "glbBytes": 182160,
+    "fbxBytes": 197404
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 700,
+     "node": "detail_pottedPlant_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 233,
+     "node": "detail_pottedPlant_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.7,
+    "d": 0.66,
+    "h": 0.85
+   },
+   "bounds": {
+    "min": [
+     -0.35,
+     -0.01,
+     -0.33
+    ],
+    "max": [
+     0.35,
+     0.84,
+     0.33
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_pottedPlant",
+     "w": 256,
+     "h": 256,
+     "bytes": 101429
+    }
+   ],
+   "preview": "previews/details/detail_pottedPlant.jpg"
+  },
+  {
+   "id": "detail_monoChair",
+   "set": "details",
+   "category": "clutter",
+   "source": "Poly Haven CC0 derivative (plastic_monobloc_chair_01)",
+   "files": {
+    "glb": "glb/details/detail_monoChair.glb",
+    "fbx": "fbx/details/detail_monoChair.fbx",
+    "glbBytes": 112296,
+    "fbxBytes": 132668
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 400,
+     "node": "detail_monoChair_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 80,
+     "node": "detail_monoChair_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.66,
+    "d": 0.64,
+    "h": 0.89
+   },
+   "bounds": {
+    "min": [
+     -0.33,
+     0,
+     -0.31
+    ],
+    "max": [
+     0.33,
+     0.89,
+     0.32
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_monoChair",
+     "w": 256,
+     "h": 256,
+     "bytes": 79983
+    }
+   ],
+   "preview": "previews/details/detail_monoChair.jpg"
+  },
+  {
+   "id": "detail_cafeSet",
+   "set": "details",
+   "category": "clutter",
+   "source": "Poly Haven CC0 derivative (outdoor_table_chair_set_01)",
+   "files": {
+    "glb": "glb/details/detail_cafeSet.glb",
+    "fbx": "fbx/details/detail_cafeSet.fbx",
+    "glbBytes": 165504,
+    "fbxBytes": 172012
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 800,
+     "node": "detail_cafeSet_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 140,
+     "node": "detail_cafeSet_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.74,
+    "d": 1.72,
+    "h": 0.86
+   },
+   "bounds": {
+    "min": [
+     -0.37,
+     0,
+     -0.86
+    ],
+    "max": [
+     0.37,
+     0.86,
+     0.86
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_cafeSet",
+     "w": 256,
+     "h": 256,
+     "bytes": 94749
+    }
+   ],
+   "preview": "previews/details/detail_cafeSet.jpg"
+  },
+  {
+   "id": "detail_wallBrick",
+   "set": "details",
+   "category": "wall & fence",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_wallBrick.glb",
+    "fbx": "fbx/details/detail_wallBrick.fbx",
+    "glbBytes": 105448,
+    "fbxBytes": 123020
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 24,
+     "node": "detail_wallBrick_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 12,
+     "node": "detail_wallBrick_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 2.04,
+    "d": 0.26,
+    "h": 1.62
+   },
+   "bounds": {
+    "min": [
+     -1.02,
+     0,
+     -0.13
+    ],
+    "max": [
+     1.02,
+     1.62,
+     0.13
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_wallBrick",
+     "w": 256,
+     "h": 256,
+     "bytes": 100652
+    }
+   ],
+   "preview": "previews/details/detail_wallBrick.jpg"
+  },
+  {
+   "id": "detail_manhole",
+   "set": "details",
+   "category": "street",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_manhole.glb",
+    "fbx": "fbx/details/detail_manhole.fbx",
+    "glbBytes": 13712,
+    "fbxBytes": 31900
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 64,
+     "node": "detail_manhole_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 13,
+     "node": "detail_manhole_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 0.7,
+    "d": 0.72,
+    "h": 0.04
+   },
+   "bounds": {
+    "min": [
+     -0.35,
+     0,
+     -0.36
+    ],
+    "max": [
+     0.35,
+     0.04,
+     0.36
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_manhole",
+     "w": 256,
+     "h": 32,
+     "bytes": 7477
+    }
+   ],
+   "preview": "previews/details/detail_manhole.jpg"
+  },
+  {
+   "id": "detail_shrubLow",
+   "set": "details",
+   "category": "plants & ground",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_shrubLow.glb",
+    "fbx": "fbx/details/detail_shrubLow.fbx",
+    "glbBytes": 26892,
+    "fbxBytes": 40380
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 240,
+     "node": "detail_shrubLow_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 48,
+     "node": "detail_shrubLow_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 1.39,
+    "d": 1.13,
+    "h": 0.82
+   },
+   "bounds": {
+    "min": [
+     -0.68,
+     0,
+     -0.53
+    ],
+    "max": [
+     0.71,
+     0.82,
+     0.61
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_shrubLow",
+     "w": 256,
+     "h": 16,
+     "bytes": 4141
+    }
+   ],
+   "preview": "previews/details/detail_shrubLow.jpg"
+  },
+  {
+   "id": "detail_benchPark",
+   "set": "details",
+   "category": "park & campus",
+   "source": "own",
+   "files": {
+    "glb": "glb/details/detail_benchPark.glb",
+    "fbx": "fbx/details/detail_benchPark.fbx",
+    "glbBytes": 15536,
+    "fbxBytes": 27580
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 132,
+     "node": "detail_benchPark_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 38,
+     "node": "detail_benchPark_LOD1"
+    }
+   ],
+   "dims": {
+    "w": 1.8,
+    "d": 0.5,
+    "h": 0.8
+   },
+   "bounds": {
+    "min": [
+     -0.9,
+     0,
+     -0.25
+    ],
+    "max": [
+     0.9,
+     0.8,
+     0.25
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) detail_benchPark",
+     "w": 128,
+     "h": 16,
+     "bytes": 2196
+    }
+   ],
+   "preview": "previews/details/detail_benchPark.jpg"
+  },
+  {
+   "id": "seoul_dagagu_00",
+   "set": "buildings",
+   "category": "dagagu",
+   "source": "own",
+   "files": {
+    "glb": "glb/buildings/seoul_dagagu_00.glb",
+    "fbx": "fbx/buildings/seoul_dagagu_00.fbx",
+    "glbBytes": 212752,
+    "fbxBytes": 170764
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 876,
+     "node": "seoul_dagagu_00_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 92,
+     "node": "seoul_dagagu_00_LOD1"
+    },
+    {
+     "lod": 2,
+     "tris": 54,
+     "node": "seoul_dagagu_00_LOD2"
+    }
+   ],
+   "dims": {
+    "w": 8.5,
+    "d": 9.37,
+    "h": 15.15
+   },
+   "bounds": {
+    "min": [
+     -4.25,
+     0,
+     -4.47
+    ],
+    "max": [
+     4.25,
+     15.15,
+     4.9
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) tile_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 49071
+    },
+    {
+     "file": "(embedded) tile_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 10726
+    },
+    {
+     "file": "(embedded) tile_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 3608
+    },
+    {
+     "file": "(embedded) roof2_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 15761
+    },
+    {
+     "file": "(embedded) roof2_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 7094
+    },
+    {
+     "file": "(embedded) roof2_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 3289
+    }
+   ],
+   "preview": "previews/buildings/seoul_dagagu_00.jpg",
+   "spec": {
+    "levels": 4,
+    "w": 8.5,
+    "d": 9.37,
+    "height": 15.15,
+    "style": "tile"
+   }
+  },
+  {
+   "id": "seoul_commercial_00",
+   "set": "buildings",
+   "category": "commercial",
+   "source": "own",
+   "files": {
+    "glb": "glb/buildings/seoul_commercial_00.glb",
+    "fbx": "fbx/buildings/seoul_commercial_00.fbx",
+    "glbBytes": 282464,
+    "fbxBytes": 211804
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 699,
+     "node": "seoul_commercial_00_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 81,
+     "node": "seoul_commercial_00_LOD1"
+    },
+    {
+     "lod": 2,
+     "tris": 39,
+     "node": "seoul_commercial_00_LOD2"
+    }
+   ],
+   "dims": {
+    "w": 9.97,
+    "d": 11.77,
+    "h": 14.65
+   },
+   "bounds": {
+    "min": [
+     -5.07,
+     0,
+     -5.8
+    ],
+    "max": [
+     4.9,
+     14.65,
+     5.97
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) panel_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 47960
+    },
+    {
+     "file": "(embedded) panel_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 26333
+    },
+    {
+     "file": "(embedded) panel_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 4865
+    },
+    {
+     "file": "(embedded) roof_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 17307
+    },
+    {
+     "file": "(embedded) roof_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 36369
+    },
+    {
+     "file": "(embedded) roof_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 45760
+    }
+   ],
+   "preview": "previews/buildings/seoul_commercial_00.jpg",
+   "spec": {
+    "levels": 3,
+    "w": 9.97,
+    "d": 11.77,
+    "height": 14.65,
+    "style": "glass"
+   }
+  },
+  {
+   "id": "seoul_office_00",
+   "set": "buildings",
+   "category": "office",
+   "source": "own",
+   "files": {
+    "glb": "glb/buildings/seoul_office_00.glb",
+    "fbx": "fbx/buildings/seoul_office_00.fbx",
+    "glbBytes": 508504,
+    "fbxBytes": 300300
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 2500,
+     "node": "seoul_office_00_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 372,
+     "node": "seoul_office_00_LOD1"
+    },
+    {
+     "lod": 2,
+     "tris": 22,
+     "node": "seoul_office_00_LOD2"
+    }
+   ],
+   "dims": {
+    "w": 25.3,
+    "d": 22.1,
+    "h": 67.18
+   },
+   "bounds": {
+    "min": [
+     -12.65,
+     0,
+     -10.75
+    ],
+    "max": [
+     12.65,
+     67.18,
+     11.35
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) panel_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 47960
+    },
+    {
+     "file": "(embedded) panel_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 26333
+    },
+    {
+     "file": "(embedded) panel_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 4865
+    },
+    {
+     "file": "(embedded) roof_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 17307
+    },
+    {
+     "file": "(embedded) roof_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 36369
+    },
+    {
+     "file": "(embedded) roof_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 45760
+    }
+   ],
+   "preview": "previews/buildings/seoul_office_00.jpg",
+   "spec": {
+    "levels": 15,
+    "w": 25.3,
+    "d": 22.1,
+    "height": 67.18,
+    "style": "curtain"
+   }
+  },
+  {
+   "id": "seoul_corner_00",
+   "set": "buildings",
+   "category": "corner",
+   "source": "own",
+   "files": {
+    "glb": "glb/buildings/seoul_corner_00.glb",
+    "fbx": "fbx/buildings/seoul_corner_00.fbx",
+    "glbBytes": 479304,
+    "fbxBytes": 297676
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 2059,
+     "node": "seoul_corner_00_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 179,
+     "node": "seoul_corner_00_LOD1"
+    },
+    {
+     "lod": 2,
+     "tris": 39,
+     "node": "seoul_corner_00_LOD2"
+    }
+   ],
+   "dims": {
+    "w": 14.88,
+    "d": 15.54,
+    "h": 21.42
+   },
+   "bounds": {
+    "min": [
+     -7.52,
+     0,
+     -7.71
+    ],
+    "max": [
+     7.36,
+     21.42,
+     7.83
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) brick_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 70690
+    },
+    {
+     "file": "(embedded) brick_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 29718
+    },
+    {
+     "file": "(embedded) brick_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 17034
+    },
+    {
+     "file": "(embedded) roof_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 17307
+    },
+    {
+     "file": "(embedded) roof_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 36369
+    },
+    {
+     "file": "(embedded) roof_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 45760
+    }
+   ],
+   "preview": "previews/buildings/seoul_corner_00.jpg",
+   "spec": {
+    "levels": 5,
+    "w": 14.88,
+    "d": 15.54,
+    "height": 21.42,
+    "style": "brick"
+   }
+  },
+  {
+   "id": "seoul_oldshop_00",
+   "set": "old",
+   "category": "oldshop",
+   "source": "own",
+   "files": {
+    "glb": "glb/old/seoul_oldshop_00.glb",
+    "fbx": "fbx/old/seoul_oldshop_00.fbx",
+    "glbBytes": 168912,
+    "fbxBytes": 157516
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 276,
+     "node": "seoul_oldshop_00_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 84,
+     "node": "seoul_oldshop_00_LOD1"
+    },
+    {
+     "lod": 2,
+     "tris": 28,
+     "node": "seoul_oldshop_00_LOD2"
+    }
+   ],
+   "dims": {
+    "w": 6.44,
+    "d": 7.94,
+    "h": 5.82
+   },
+   "bounds": {
+    "min": [
+     -3.22,
+     0,
+     -3.54
+    ],
+    "max": [
+     3.22,
+     5.82,
+     4.4
+    ]
+   },
+   "textures": [
+    {
+     "file": "(embedded) brick_normal",
+     "w": 512,
+     "h": 512,
+     "bytes": 70690
+    },
+    {
+     "file": "(embedded) brick_albedo",
+     "w": 512,
+     "h": 512,
+     "bytes": 29718
+    },
+    {
+     "file": "(embedded) brick_mr",
+     "w": 512,
+     "h": 512,
+     "bytes": 17034
+    }
+   ],
+   "preview": "previews/old/seoul_oldshop_00.jpg",
+   "spec": {
+    "levels": 1,
+    "w": 6.28,
+    "d": 7.94,
+    "height": 5.82,
+    "style": "old_brick"
+   }
+  },
+  {
+   "id": "vehicle_sedan",
+   "set": "vehicles",
+   "category": "car",
+   "source": "own",
+   "files": {
+    "glb": "glb/vehicles/vehicle_sedan.glb",
+    "fbx": "fbx/vehicles/vehicle_sedan.fbx",
+    "glbBytes": 197752,
+    "fbxBytes": 143612
+   },
+   "lods": [
+    {
+     "lod": 0,
+     "tris": 3854,
+     "node": "vehicle_sedan_LOD0"
+    },
+    {
+     "lod": 1,
+     "tris": 436,
+     "node": "vehicle_sedan_LOD1"
+    },
+    {
+     "lod": 2,
+     "tris": 12,
+     "node": "vehicle_sedan_LOD2"
+    }
+   ],
+   "dims": {
+    "w": 2.21,
+    "d": 4.91,
+    "h": 1.45
+   },
+   "bounds": {
+    "min": [
+     -1.11,
+     0,
+     -2.46
+    ],
+    "max": [
+     1.11,
+     1.45,
+     2.45
+    ]
+   },
+   "textures": [],
+   "preview": "previews/vehicles/vehicle_sedan.jpg"
+  }
+ ],
+ "textures": []
+}
