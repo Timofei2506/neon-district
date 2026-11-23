@@ -135,6 +135,12 @@ namespace NeonDistrict.EditorTools
             dnc.sun = sun;
             dnc.moon = moon;
 
+            var weather = systems.AddComponent<World.WeatherSystem>();
+            weather.sun = sun;
+            weather.dayNight = dnc;
+            weather.targetCamera = cam;
+            weather.startWeather = World.WeatherSystem.Weather.Clear;
+
             // ---------------------------------------------------------- UI
             var ui = new GameObject("UI");
             var hud = ui.AddComponent<NeonDistrict.UI.HUDController>();
@@ -199,6 +205,13 @@ namespace NeonDistrict.EditorTools
             // сцена в билд-листе
             var buildScenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             EditorBuildSettings.scenes = buildScenes;
+
+            // материалы города регистрируем для «мокрого асфальта» (дождь)
+            foreach (var guid in AssetDatabase.FindAssets("t:Material", new[] { "Assets/Art/Manhattan" }))
+            {
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+                if (mat != null) weather.RegisterWetMaterial(mat);
+            }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
