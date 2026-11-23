@@ -82,7 +82,9 @@ namespace NeonDistrict.EditorTools
             ProjectSetup.Run();
 
             // 0) кинематографичный пост-процесс (профиль создаётся кодом, идемпотентно)
+#if !ND_COMPILE_CHECK
             PostFxSetup.EnsureProfile();
+#endif
 
             // 2) префабы (игрок, прохожий, машины, полиция)
             AssetPipeline.BuildAll();
