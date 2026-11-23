@@ -191,6 +191,9 @@ namespace NeonDistrict.EditorTools
             var garageUi = ui.AddComponent<NeonDistrict.UI.GarageUI>();
             garageUi.garage = garage;
 
+            var pauseUi = ui.AddComponent<NeonDistrict.UI.PauseMenuUI>();
+            pauseUi.garage = garageUi;
+
             var binder = ui.AddComponent<Missions.MissionHudBinder>();
             binder.missions = missions;
             binder.dialogue = dialogue;

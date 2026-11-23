@@ -220,7 +220,11 @@ namespace NeonDistrict.Police
         private static void DestroyCollider(GameObject go)
         {
             var c = go.GetComponent<Collider>();
-            if (c != null) DestroyImmediate(c);
+            if (c == null) return;
+            // этот код выполняется и в редакторе (сборка префаба), и в рантайме:
+            // DestroyImmediate в play-mode запрещён, поэтому выбираем по контексту
+            if (Application.isPlaying) Object.Destroy(c);
+            else Object.DestroyImmediate(c);
         }
 
         // ---------------------------------------------------------------- flashing
@@ -260,11 +264,8 @@ namespace NeonDistrict.Police
                 if (r == null) continue;
                 var mat = r.sharedMaterial;
                 if (mat == null) continue;
-                var c = mat.GetColor(EmissionId);
-                var baseColor = mat.color;
-                mat.SetColor(EmissionId, baseColor * strength);
-                void Apply(Color col) { }
-                Apply(c);
+                // материал общий для всех экземпляров — правим цвет свечения от базового
+                mat.SetColor(EmissionId, mat.color * strength);
             }
         }
     }
