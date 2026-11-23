@@ -81,6 +81,9 @@ namespace NeonDistrict.EditorTools
             // 1) URP, материалы города, Player Settings
             ProjectSetup.Run();
 
+            // 0) кинематографичный пост-процесс (профиль создаётся кодом, идемпотентно)
+            PostFxSetup.EnsureProfile();
+
             // 2) префабы (игрок, прохожий, машины, полиция)
             AssetPipeline.BuildAll();
 

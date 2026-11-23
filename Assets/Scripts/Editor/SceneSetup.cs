@@ -131,7 +131,22 @@ namespace NeonDistrict.EditorTools
                 AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/NeonDistrict/Police_Polestar.prefab"),
             };
 
+            // ---------------------------------------------------------- пост-обработка (кинематографичный профиль)
+            // Volume/VolumeProfile — типы URP-пакета, поэтому блок собирается только в Unity
+            // (офлайн-проверка компиляции его вырезает).
+#if !ND_COMPILE_CHECK
+            var volumeGo = new GameObject("GlobalVolume");
+            var volume = volumeGo.AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.priority = 10f;
+            volume.profile = PostFxSetup.EnsureProfile();
+            volumeGo.transform.SetParent(systems.transform, false);
+#endif
+
             var dnc = systems.AddComponent<World.DayNightCycle>();
+#if !ND_COMPILE_CHECK
+            dnc.postProcessVolume = volume;
+#endif
             dnc.sun = sun;
             dnc.moon = moon;
 
