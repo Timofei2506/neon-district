@@ -41,6 +41,7 @@ namespace NeonDistrict.Player
 
         [Header("Ссылки")]
         public Animator animator;
+        public LocomotionAnimator locomotion;
         public VehicleController currentVehicle;
 
         public float Health { get; set; } = 100f;
@@ -70,6 +71,7 @@ namespace NeonDistrict.Player
         {
             _cc = GetComponent<CharacterController>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
+            if (locomotion == null) locomotion = GetComponentInChildren<LocomotionAnimator>();
             magazine = Mathf.Min(magazineSize, ammoPistol);
             if (cameraPivot == null && Camera.main != null) cameraPivot = Camera.main.transform;
             _camYaw = transform.eulerAngles.y;
@@ -176,7 +178,9 @@ namespace NeonDistrict.Player
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 1f - Mathf.Exp(-rotationSharpness * Time.deltaTime));
             }
 
+            bool wasGrounded = _grounded;
             _grounded = _cc.isGrounded;
+            if (_grounded && !wasGrounded && locomotion != null) locomotion.Land(_velocity.y);
             if (_grounded && _velocity.y < 0f) _velocity.y = -2f;
             if (PressedJump() && _grounded)
             {
@@ -210,6 +214,7 @@ namespace NeonDistrict.Player
             if (magazine <= 0) { Reload(); return; }
 
             magazine--;
+            if (locomotion != null) locomotion.PunchRecoil();
             var cam = Camera.main;
             var origin = cam != null ? cam.transform.position : transform.position + Vector3.up * 1.5f;
             var dir = cam != null ? cam.transform.forward : transform.forward;

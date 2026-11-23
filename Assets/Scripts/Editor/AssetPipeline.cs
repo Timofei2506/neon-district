@@ -159,6 +159,9 @@ namespace NeonDistrict.EditorTools
             var norm = visual.AddComponent<CharacterNormalizer>();
             norm.targetHeight = 1.82f;
 
+            // процедурный слой анимации (наклон корпуса, отдача, приземление)
+            var locomotion = visual.AddComponent<LocomotionAnimator>();
+
             var cc = root.AddComponent<CharacterController>();
             cc.height = 1.8f;
             cc.radius = 0.34f;
@@ -168,6 +171,8 @@ namespace NeonDistrict.EditorTools
 
             var pc = root.AddComponent<PlayerController>();
             pc.animator = visual.GetComponentInChildren<Animator>();
+            pc.locomotion = locomotion;
+            EnsureAnimatorController(fbx, pc.animator);
             pc.walkSpeed = 2.0f;
             pc.runSpeed = 5.2f;
             pc.sprintSpeed = 6.8f;
