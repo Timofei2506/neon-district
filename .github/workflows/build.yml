@@ -13,8 +13,15 @@ on:
   push:
     branches: [master, main]
     tags: ['v*']
+    # документацию собирать незачем: Unity-образ ~20 ГБ и один Personal-seat на прогон
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
     branches: [master, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   workflow_dispatch:
     inputs:
       unity_version:
