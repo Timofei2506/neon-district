@@ -61,12 +61,18 @@ jobs:
       # Активация Unity 6 Personal: лицензионный файл (.ulf) не работает в облаке —
       # он привязан к машине («Machine bindings don't match»), а ручная активация
       # Personal закрыта Unity. Рабочий путь: запрос места (seat) по аккаунту.
+      # Ставим CLI из релизного архива по конкретной версии: install.sh тянет скрипт с
+      # raw.githubusercontent.com и на раннерах упирается в rate-limit (403).
       - name: Install GameCI CLI
         run: |
           set -euo pipefail
-          curl -fsSL https://raw.githubusercontent.com/game-ci/cli/main/install.sh -o /tmp/game-ci-install.sh
-          GAME_CI_INSTALL="$HOME/.game-ci/bin" bash /tmp/game-ci-install.sh
-          echo "$HOME/.game-ci/bin" >> "$GITHUB_PATH"
+          VERSION=v0.1.77
+          curl -fsSL --retry 3 -o /tmp/game-ci.tar.gz \
+            "https://github.com/game-ci/cli/releases/download/$VERSION/game-ci-linux-x64.tar.gz"
+          mkdir -p "$HOME/.game-ci"
+          tar -xzf /tmp/game-ci.tar.gz -C "$HOME/.game-ci"
+          echo "$HOME/.game-ci" >> "$GITHUB_PATH"
+          "$HOME/.game-ci/game-ci" --version
 
       - name: Activate Unity (Personal seat via account)
         env:
@@ -148,12 +154,18 @@ jobs:
             Library-${{ env.UNITY_VERSION }}-Linux-
             Library-
 
+      # Ставим CLI из релизного архива по конкретной версии: install.sh тянет скрипт с
+      # raw.githubusercontent.com и на раннерах упирается в rate-limit (403).
       - name: Install GameCI CLI
         run: |
           set -euo pipefail
-          curl -fsSL https://raw.githubusercontent.com/game-ci/cli/main/install.sh -o /tmp/game-ci-install.sh
-          GAME_CI_INSTALL="$HOME/.game-ci/bin" bash /tmp/game-ci-install.sh
-          echo "$HOME/.game-ci/bin" >> "$GITHUB_PATH"
+          VERSION=v0.1.77
+          curl -fsSL --retry 3 -o /tmp/game-ci.tar.gz \
+            "https://github.com/game-ci/cli/releases/download/$VERSION/game-ci-linux-x64.tar.gz"
+          mkdir -p "$HOME/.game-ci"
+          tar -xzf /tmp/game-ci.tar.gz -C "$HOME/.game-ci"
+          echo "$HOME/.game-ci" >> "$GITHUB_PATH"
+          "$HOME/.game-ci/game-ci" --version
 
       - name: Activate Unity (Personal seat via account)
         env:
