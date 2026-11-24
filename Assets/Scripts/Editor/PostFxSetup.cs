@@ -105,7 +105,20 @@ namespace NeonDistrict.EditorTools
             if (ca != null) ca.intensity = Ranged(0.09f, 0f, 1f);
 
             AssetDatabase.CreateAsset(profile, ProfilePath);
+
+            // КРИТИЧНО: profile.Add<T>() создаёт компонент, но НЕ сохраняет его внутри ассета
+            // профиля. Без AddObjectToAsset компоненты — «висячие» объекты в памяти: на диск
+            // попадает пустой VolumeProfile, и пост-обработка в игре молча не работает
+            // (именно так и было: ACES/bloom не появлялись в билде).
+            foreach (var component in profile.components)
+            {
+                if (component == null) continue;
+                component.hideFlags = HideFlags.HideInHierarchy;
+                if (!AssetDatabase.Contains(component)) AssetDatabase.AddObjectToAsset(component, profile);
+            }
+
             AssetDatabase.SaveAssets();
+            AssetDatabase.ImportAsset(ProfilePath, ImportAssetOptions.ForceUpdate);
             Debug.Log("[Neon District] Пост-обработка создана: " + ProfilePath);
             return profile;
         }
