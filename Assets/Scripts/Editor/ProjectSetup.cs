@@ -125,11 +125,13 @@ namespace NeonDistrict.EditorTools
             AssetDatabase.CreateAsset(asset, UrpAssetPath);
 
             // настройки качества рендера
-            asset.msaaSampleCount = 4;
+            // 8×MSAA + рендер в нативном разрешении: силуэты зданий и линии окон перестают «рваться»
+            asset.msaaSampleCount = 8;
             asset.renderScale = 1.0f;
             asset.supportsHDR = true;
             TrySetEnum(asset, "hdrColorBufferPrecision", "FP16_precision", "_64Bits"); // имя enum менялось между версиями URP
-            asset.shadowDistance = 260f;
+            // на 8-километровом городе тени должны доставать хотя бы до соседнего квартала
+            asset.shadowDistance = 320f;
             asset.shadowCascadeCount = 4;
             asset.mainLightShadowmapResolution = 4096;
             asset.additionalLightsShadowmapResolution = 2048;
@@ -141,6 +143,10 @@ namespace NeonDistrict.EditorTools
             asset.supportsCameraOpaqueTexture = true;
             asset.maxAdditionalLightsCount = 4;
             
+
+            // пост-обработка должна быть включена на самом рендерере, иначе Volume с профилем
+            // (bloom/ACES/виньетка) в билде просто ничего не делает — картинка выглядит «плоской».
+            TryInvokeEnsurePostProcessData(rendererData);
 
             // AO (SSAO) — в URP 17 рендер-фича живёт на рендерере
             var aoType = System.Type.GetType("UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion, Unity.RenderPipelines.Universal.Runtime");
@@ -175,6 +181,24 @@ namespace NeonDistrict.EditorTools
         /// свойство/значение называется иначе (ассеты URP переименовывали их между 14 и 17).
         /// Нужно, чтобы редакторский сетап не ломал компиляцию на апгрейде пакета.
         /// </summary>
+        /// <summary>
+        /// В свежесозданном UniversalRendererData поле postProcessData пустое — URP заполняет его
+        /// приватным методом EnsurePostProcessData. Вызываем его отражением, если он есть.
+        /// </summary>
+        private static void TryInvokeEnsurePostProcessData(object rendererData)
+        {
+            if (rendererData == null) return;
+            var method = rendererData.GetType().GetMethod("EnsurePostProcessData",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            if (method == null || method.GetParameters().Length != 0) return;
+            try
+            {
+                method.Invoke(rendererData, null);
+                EditorUtility.SetDirty(rendererData as UnityEngine.Object);
+            }
+            catch (System.Exception) { /* не критично: камера всё равно попробует включить пост-обработку */ }
+        }
+
         private static void TrySetEnum(object target, string property, params string[] candidateValues)
         {
             if (target == null) return;
@@ -212,10 +236,10 @@ namespace NeonDistrict.EditorTools
         private static void ConfigureQuality()
         {
             QualitySettings.SetQualityLevel(QualitySettings.names.Length - 1, false);
-            QualitySettings.shadowDistance = 260f;
+            QualitySettings.shadowDistance = 320f;
             QualitySettings.shadowCascades = 4;
             QualitySettings.shadowResolution = UnityEngine.ShadowResolution.VeryHigh;
-            QualitySettings.antiAliasing = 4;
+            QualitySettings.antiAliasing = 8;
             QualitySettings.vSyncCount = 1;
             QualitySettings.lodBias = 2f;
             QualitySettings.skinWeights = SkinWeights.FourBones;

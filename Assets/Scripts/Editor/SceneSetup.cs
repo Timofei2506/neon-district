@@ -55,7 +55,7 @@ namespace NeonDistrict.EditorTools
             RenderSettings.fogColor = new Color(0.55f, 0.62f, 0.72f);
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.42f, 0.46f, 0.55f);
-            RenderSettings.skybox = null;
+            RenderSettings.skybox = NeonDistrict.EditorTools.SkyFactory.EnsureSkybox();
 
             // ---------------------------------------------------------- город
             var cityGo = new GameObject("City");
@@ -91,6 +91,13 @@ namespace NeonDistrict.EditorTools
             cam.nearClipPlane = 0.08f;
             cam.farClipPlane = 3000f;
             cam.allowHDR = true;
+            // пост-обработка (ACES/bloom/виньетка из профиля Volume) включается только этой
+            // галочкой: без неё профиль висит в сцене, но на экран ничего не попадает.
+            var camData = camGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+            camData.renderPostProcessing = true;
+            camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+            camData.antialiasingQuality = UnityEngine.Rendering.Universal.AntialiasingQuality.High;
+            camData.renderShadows = true;
             camGo.AddComponent<AudioListener>();
             camGo.transform.position = playerGo != null ? playerGo.transform.position + new Vector3(0f, 3f, -6f) : new Vector3(0f, 3f, -6f);
             var orbit = camGo.AddComponent<NeonDistrict.CameraRig.ThirdPersonOrbit>();
@@ -166,13 +173,23 @@ namespace NeonDistrict.EditorTools
             weather.startWeather = World.WeatherSystem.Weather.Clear;
 
             // ---------------------------------------------------------- UI
+            // EventSystem обязателен для кликов по UGUI. Без него кнопки меню не нажимаются
+            // (мышь просто «не видит» панели), а ввод с клавиатуры работает — типичный симптом
+            // «в меню ничего не реагирует». Input System пакет включён, поэтому модуль ввода — его.
+            var eventSystemGo = new GameObject("EventSystem");
+            eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemGo.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+
             var ui = new GameObject("UI");
             var hud = ui.AddComponent<NeonDistrict.UI.HUDController>();
             hud.player = playerGo != null ? playerGo.transform : null;
             NeonDistrict.UI.RuntimeUI.Build(hud, ui.transform);
 
-            var menu = ui.AddComponent<MainMenuUI>();
-            NeonDistrict.UI.RuntimeUI.BuildMenu(menu, ui.transform);
+            // главное меню: неоновый экран + живой фон (город за панелью)
+            var menu = ui.AddComponent<NeonDistrict.UI.MenuScreen>();
+            menu.Build(ui.transform);
+            var backdrop = ui.AddComponent<NeonDistrict.UI.MenuBackdrop>();
+            backdrop.Build(ui.transform, cam);
 
             // ---------------------------------------------------------- миссии, субтитры, миникарта
             var missionGo = new GameObject("MissionSystem");

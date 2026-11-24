@@ -41,9 +41,12 @@ namespace NeonDistrict.EditorTools
         public static VolumeProfile EnsureProfile()
         {
             var existing = AssetDatabase.LoadAssetAtPath<VolumeProfile>(ProfilePath);
-            if (existing != null) return existing;
+            // профиль мог сохраниться пустым (например, если сборка прервалась между созданием
+            // ассета и добавлением компонентов) — такой пересоздаём, иначе пост-обработки нет.
+            if (existing != null && existing.components != null && existing.components.Count > 0) return existing;
 
             Directory.CreateDirectory(Folder);
+            if (existing != null) AssetDatabase.DeleteAsset(ProfilePath);
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
             profile.name = "NeonDistrict_PostFX";
 

@@ -98,7 +98,16 @@ namespace NeonDistrict.EditorTools
             // 1) URP, материалы города, Player Settings
             ProjectSetup.Run();
 
-            // 0) кинематографичный пост-процесс (профиль создаётся кодом, идемпотентно)
+            // 0) небо (иначе за городом чёрная заливка) и кинематографичный пост-процесс
+            var sky = SkyFactory.EnsureSkybox();
+            if (sky != null) RenderSettings.skybox = sky;
+
+            // URP требует, чтобы ambient брался из созданного skybox'а, иначе небо освещает сцену
+            // неправильно (объекты выглядят плоскими)
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox;
+            RenderSettings.ambientIntensity = 1.1f;
+            DynamicGI.UpdateEnvironment();
+
 #if !ND_COMPILE_CHECK
             PostFxSetup.EnsureProfile();
 #endif

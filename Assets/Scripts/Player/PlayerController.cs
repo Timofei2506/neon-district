@@ -89,7 +89,11 @@ namespace NeonDistrict.Player
             _mouse = UnityEngine.InputSystem.Mouse.current;
             _pad = UnityEngine.InputSystem.Gamepad.current;
 #endif
-            LockCursor(true);
+            // НЕ блокируем курсор в Start: сцена открывается в главном меню, и захват мыши здесь
+            // приводил к «пропавшему» курсору и невозможности нажать кнопки. Захват включает
+            // GameManager.SetState(Playing) / MenuScreen.StartGame.
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
 
         public static void LockCursor(bool locked)

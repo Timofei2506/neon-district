@@ -61,37 +61,6 @@ namespace NeonDistrict.UI
             hud.hintText.gameObject.SetActive(false);
         }
 
-        public static void BuildMenu(MainMenuUI menu, Transform parent)
-        {
-            var canvasGo = new GameObject("MenuCanvas", typeof(RectTransform));
-            canvasGo.transform.SetParent(parent, false);
-            var canvas = canvasGo.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 20;
-            var scaler = canvasGo.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-            canvasGo.AddComponent<GraphicRaycaster>();
-
-            var bg = new GameObject("BG", typeof(RectTransform)).AddComponent<Image>();
-            bg.transform.SetParent(canvasGo.transform, false);
-            var rt = bg.rectTransform;
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = rt.offsetMax = Vector2.zero;
-            bg.color = new Color(0.02f, 0.02f, 0.05f, 0.92f);
-
-            var title = Text(canvasGo.transform, "Title", "NEON\nDISTRICT", new Vector2(0f, 0.5f), new Vector2(900f, 320f), new Vector2(140f, 180f), 92, TextAnchor.UpperLeft);
-            title.color = Pink;
-            var sub = Text(canvasGo.transform, "Sub", "открытый мир · Unity 6.3 LTS", new Vector2(0f, 0.5f), new Vector2(900f, 40f), new Vector2(146f, 40f), 20, TextAnchor.UpperLeft);
-            sub.color = new Color(0.7f, 0.75f, 0.85f);
-
-            menu.playButton = Button(canvasGo.transform, "ИГРАТЬ", new Vector2(0f, 0.5f), new Vector2(360f, 62f), new Vector2(146f, -80f));
-            menu.continueButton = Button(canvasGo.transform, "ПРОДОЛЖИТЬ", new Vector2(0f, 0.5f), new Vector2(360f, 62f), new Vector2(146f, -154f));
-            menu.quitButton = Button(canvasGo.transform, "ВЫХОД", new Vector2(0f, 0.5f), new Vector2(360f, 62f), new Vector2(146f, -228f));
-            menu.footer = Text(canvasGo.transform, "Footer", "v0.1 · ассеты: Manhattan (Sketchfab), Renderpeople, Seoul City Builder Kit, Polestar 4, Mercedes GLS/AMG", new Vector2(0f, 0f), new Vector2(1600f, 30f), new Vector2(48f, 32f), 16, TextAnchor.MiddleLeft);
-            menu.footer.color = new Color(0.45f, 0.5f, 0.6f);
-            menu.panel = canvasGo;
-        }
-
         // ------------------------------------------------------------ primitives
         public static Text Text(Transform parent, string name, string value, Vector2 anchor, Vector2 size, Vector2 pos, int fontSize, TextAnchor align)
         {

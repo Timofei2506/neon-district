@@ -81,7 +81,8 @@ namespace NeonDistrict.Core
             CurrentState = s;
             Time.timeScale = s == State.Paused || s == State.Menu ? 0f : 1f;
             AudioListener.pause = s == State.Paused;
-            Cursor.visible = s == State.Menu || s == State.Paused;
+            bool freeMouse = s == State.Menu || s == State.Paused || s == State.Boot || s == State.Cinematic;
+            Cursor.visible = freeMouse;
             Cursor.lockState = Cursor.visible ? CursorLockMode.None : CursorLockMode.Locked;
             OnStateChanged?.Invoke(s);
         }
