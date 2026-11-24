@@ -93,11 +93,14 @@ namespace NeonDistrict.EditorTools
             cam.allowHDR = true;
             // пост-обработка (ACES/bloom/виньетка из профиля Volume) включается только этой
             // галочкой: без неё профиль висит в сцене, но на экран ничего не попадает.
+#if !ND_COMPILE_CHECK
+            // URP-типов нет в офлайн reference-сборках — в Unity этот блок компилируется
             var camData = camGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
             camData.renderPostProcessing = true;
             camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.SubpixelMorphologicalAntiAliasing;
             camData.antialiasingQuality = UnityEngine.Rendering.Universal.AntialiasingQuality.High;
             camData.renderShadows = true;
+#endif
             camGo.AddComponent<AudioListener>();
             camGo.transform.position = playerGo != null ? playerGo.transform.position + new Vector3(0f, 3f, -6f) : new Vector3(0f, 3f, -6f);
             var orbit = camGo.AddComponent<NeonDistrict.CameraRig.ThirdPersonOrbit>();
@@ -178,7 +181,10 @@ namespace NeonDistrict.EditorTools
             // «в меню ничего не реагирует». Input System пакет включён, поэтому модуль ввода — его.
             var eventSystemGo = new GameObject("EventSystem");
             eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+#if !ND_COMPILE_CHECK
+            // в офлайн-проверке пакета Input System нет — тип недоступен, в Unity он есть
             eventSystemGo.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+#endif
 
             var ui = new GameObject("UI");
             var hud = ui.AddComponent<NeonDistrict.UI.HUDController>();

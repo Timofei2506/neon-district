@@ -52,11 +52,11 @@ namespace NeonDistrict.UI
             else _panelGroup = canvasGo.GetComponent<CanvasGroup>();
 
             // ---------------------------------------------------------- затемнение под текстом
-            var shade = Image("Shade", canvasGo.transform, NeonGfx.White, new Color(0f, 0f, 0f, 0.0f));
+            var shade = MakeImage("Shade", canvasGo.transform, NeonGfx.White, new Color(0f, 0f, 0f, 0.0f));
             Stretch(shade.rectTransform);
 
             // слева-снизу мягкая подложка, чтобы текст читался на любом кадре города
-            var shadeLeft = Image("ShadeLeft", canvasGo.transform, NeonGfx.GradientVertical, new Color(0.01f, 0.01f, 0.025f, 0.75f));
+            var shadeLeft = MakeImage("ShadeLeft", canvasGo.transform, NeonGfx.GradientVertical, new Color(0.01f, 0.01f, 0.025f, 0.75f));
             var slRt = shadeLeft.rectTransform;
             slRt.anchorMin = new Vector2(0f, 0f);
             slRt.anchorMax = new Vector2(0.62f, 1f);
@@ -110,7 +110,7 @@ namespace NeonDistrict.UI
             line2.color = NeonDistrict.UI.RuntimeUI.Pink;
 
             // неоновое свечение под заголовком
-            var glow = Image("TitleGlow", root, NeonGfx.RadialGlow, new Color(0.85f, 0.2f, 0.55f, 0.32f));
+            var glow = MakeImage("TitleGlow", root, NeonGfx.RadialGlow, new Color(0.85f, 0.2f, 0.55f, 0.32f));
             var gRt = glow.rectTransform;
             gRt.anchorMin = gRt.anchorMax = new Vector2(0f, 1f);
             gRt.pivot = new Vector2(0f, 1f);
@@ -118,7 +118,7 @@ namespace NeonDistrict.UI
             gRt.sizeDelta = new Vector2(1300f, 700f);
             glow.transform.SetAsFirstSibling();
 
-            var rule = Image("Rule", root, NeonGfx.SoftLine, new Color(NeonDistrict.UI.RuntimeUI.Cyan.r, NeonDistrict.UI.RuntimeUI.Cyan.g, NeonDistrict.UI.RuntimeUI.Cyan.b, 0.55f));
+            var rule = MakeImage("Rule", root, NeonGfx.SoftLine, new Color(NeonDistrict.UI.RuntimeUI.Cyan.r, NeonDistrict.UI.RuntimeUI.Cyan.g, NeonDistrict.UI.RuntimeUI.Cyan.b, 0.55f));
             var rRt = rule.rectTransform;
             rRt.anchorMin = rRt.anchorMax = new Vector2(0f, 1f);
             rRt.pivot = new Vector2(0f, 1f);
@@ -134,7 +134,7 @@ namespace NeonDistrict.UI
             sub.color = new Color(0.55f, 0.66f, 0.78f);
 
             // лёгкая неоновая полоска слева от меню
-            var accent = Image("Accent", root, NeonGfx.White, new Color(NeonDistrict.UI.RuntimeUI.Pink.r, NeonDistrict.UI.RuntimeUI.Pink.g, NeonDistrict.UI.RuntimeUI.Pink.b, 0.85f));
+            var accent = MakeImage("Accent", root, NeonGfx.White, new Color(NeonDistrict.UI.RuntimeUI.Pink.r, NeonDistrict.UI.RuntimeUI.Pink.g, NeonDistrict.UI.RuntimeUI.Pink.b, 0.85f));
             var aRt = accent.rectTransform;
             aRt.anchorMin = aRt.anchorMax = new Vector2(0f, 1f);
             aRt.pivot = new Vector2(0f, 1f);
@@ -171,7 +171,9 @@ namespace NeonDistrict.UI
             colors.normalColor = new Color(0.05f, 0.05f, 0.08f, 0.55f);
             colors.highlightedColor = new Color(0.16f, 0.06f, 0.14f, 0.92f);
             colors.pressedColor = new Color(0.45f, 0.08f, 0.22f, 1f);
+#if UNITY_2019_3_OR_NEWER
             colors.selectedColor = colors.highlightedColor;
+#endif
             colors.fadeDuration = 0.08f;
             btn.colors = colors;
             var nav = btn.navigation;
@@ -242,7 +244,7 @@ namespace NeonDistrict.UI
 
         private Image BuildCursor(Transform parent)
         {
-            var img = Image("Cursor", parent, NeonGfx.Arrow, new Color(1f, 0.35f, 0.6f, 0.95f));
+            var img = MakeImage("Cursor", parent, NeonGfx.Arrow, new Color(1f, 0.35f, 0.6f, 0.95f));
             var rt = img.rectTransform;
             rt.anchorMin = rt.anchorMax = new Vector2(0f, 0f);
             rt.pivot = new Vector2(0f, 1f);
@@ -251,7 +253,7 @@ namespace NeonDistrict.UI
             // поворот: наш спрайт смотрит вправо, курсор должен смотреть влево-вверх
             rt.localRotation = Quaternion.Euler(0f, 0f, 135f);
 
-            var dot = Image("CursorDot", rt, NeonGfx.RadialGlow, new Color(1f, 0.5f, 0.75f, 0.35f));
+            var dot = MakeImage("CursorDot", rt, NeonGfx.RadialGlow, new Color(1f, 0.5f, 0.75f, 0.35f));
             Stretch(dot.rectTransform, 26f);
             dot.raycastTarget = false;
             return img;
@@ -327,7 +329,7 @@ namespace NeonDistrict.UI
         {
             if (cursor == null) return;
             var rt = (RectTransform)cursor.transform;
-            Vector2 screen = Input.mousePosition;
+            Vector2 screen = PointerPosition();
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 (RectTransform)canvas.transform, screen, null, out var local);
             rt.anchoredPosition = local;
@@ -343,8 +345,8 @@ namespace NeonDistrict.UI
             _navCooldown -= Time.unscaledDeltaTime;
 
             float v = 0f;
-            if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S)) v = 1f;
-            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) v = -1f;
+            if (KeyDown(KeyKind.Down) || KeyDown(KeyKind.S)) v = 1f;
+            if (KeyDown(KeyKind.Up) || KeyDown(KeyKind.W)) v = -1f;
 
             if (v != 0f && _navCooldown <= 0f)
             {
@@ -359,7 +361,7 @@ namespace NeonDistrict.UI
             }
 
             if (IsInteractable(_selected) &&
-                (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Space)))
+                (KeyDown(KeyKind.Enter) || KeyDown(KeyKind.NumpadEnter) || KeyDown(KeyKind.Space)))
             {
                 _buttons[_selected].onClick.Invoke();
             }
@@ -423,6 +425,53 @@ namespace NeonDistrict.UI
 #endif
         }
 
+        // ------------------------------------------------------------------ ввод
+        // Меню должно работать и на новом Input System (он в манифесте), и на старом Input
+        // Manager: какой бэкенд активен, знает только Unity, поэтому выбираем через defines.
+
+        private enum KeyKind { Up, Down, W, S, Enter, NumpadEnter, Space }
+
+        private static bool KeyDown(KeyKind kind)
+        {
+#if ENABLE_INPUT_SYSTEM && !ND_COMPILE_CHECK
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb == null) return false;
+            switch (kind)
+            {
+                case KeyKind.Up: return kb.upArrowKey.wasPressedThisFrame;
+                case KeyKind.Down: return kb.downArrowKey.wasPressedThisFrame;
+                case KeyKind.W: return kb.wKey.wasPressedThisFrame;
+                case KeyKind.S: return kb.sKey.wasPressedThisFrame;
+                case KeyKind.Enter: return kb.enterKey.wasPressedThisFrame;
+                case KeyKind.NumpadEnter: return kb.numpadEnterKey.wasPressedThisFrame;
+                case KeyKind.Space: return kb.spaceKey.wasPressedThisFrame;
+            }
+            return false;
+#else
+            switch (kind)
+            {
+                case KeyKind.Up: return Input.GetKeyDown(KeyCode.UpArrow);
+                case KeyKind.Down: return Input.GetKeyDown(KeyCode.DownArrow);
+                case KeyKind.W: return Input.GetKeyDown(KeyCode.W);
+                case KeyKind.S: return Input.GetKeyDown(KeyCode.S);
+                case KeyKind.Enter: return Input.GetKeyDown(KeyCode.Return);
+                case KeyKind.NumpadEnter: return Input.GetKeyDown(KeyCode.KeypadEnter);
+                case KeyKind.Space: return Input.GetKeyDown(KeyCode.Space);
+            }
+            return false;
+#endif
+        }
+
+        private static Vector2 PointerPosition()
+        {
+#if ENABLE_INPUT_SYSTEM && !ND_COMPILE_CHECK
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            return mouse != null ? mouse.position.ReadValue() : Vector2.zero;
+#else
+            return Input.mousePosition;
+#endif
+        }
+
         // ------------------------------------------------------------------ helpers
         private static Text Label(string name, Transform parent, string value, int size, TextAnchor align)
         {
@@ -444,7 +493,7 @@ namespace NeonDistrict.UI
             return t;
         }
 
-        private static Image Image(string name, Transform parent, Sprite sprite, Color color)
+        private static Image MakeImage(string name, Transform parent, Sprite sprite, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
