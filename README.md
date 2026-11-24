@@ -106,9 +106,9 @@ bash tools/cscheck/run.sh      # локально; в CI то же самое д
 ```
 
 ### Статус CI
-`Build (Windows / Linux)` — **зелёный** (run [45174012726](https://github.com/Timofei2506/neon-district/actions/runs/45174012726)):
-`NeonDistrict-Windows` — 180 МБ, `NeonDistrict-Linux` — 122 МБ, артефакты живут 30 дней.
-Тег вида `v0.1.0` дополнительно собирает GitHub Release.
+`Build (Windows / Linux)` — **зелёный**: обе платформы собираются, по тегу создаётся GitHub Release
+с готовыми архивами. Последний релиз: **[v0.1.0](https://github.com/Timofei2506/neon-district/releases/tag/v0.1.0)**
+(Windows 90 МБ / Linux 61 МБ). Артефакты каждого прогона дополнительно живут 30 дней.
 
 ### Активация Unity в CI (Unity Personal, файл лицензии не нужен)
 С Unity 6 **ручная активация Personal закрыта** (`license.unity3d.com/manual` обслуживает только
@@ -142,6 +142,35 @@ game-ci return-license --engine unity --unityLicensingMethod personal   # шаг
   нужен `windows-mono`, для активации достаточно `base`;
 - `CIBuild` печатает блок `# Build results #` с `Errors:`/`Size:` — именно его парсит game-ci,
   без него успешная сборка помечается как «There was an error building the project».
+
+## Как поиграть
+
+### Скачать готовый билд (ничего устанавливать не нужно)
+1. Откройте **[Releases](https://github.com/Timofei2506/neon-district/releases/latest)** и скачайте:
+   - **Windows**: `NeonDistrict-Windows.zip` (≈90 МБ)
+   - **Linux**: `NeonDistrict-Linux.zip` (≈61 МБ)
+2. Распакуйте архив целиком (не запускайте изнутри zip-просмотрщика — рядом должны лежать
+   `StandaloneWindows64_Data/` и `UnityPlayer.dll`).
+3. Запустите `StandaloneWindows64.exe` (Linux: `chmod +x StandaloneLinux64.x86_64` и запуск оттуда же).
+
+Требования: Windows 10/11 x64 или Linux x64 с драйвером D3D12/Vulkan; видеопамять от 2 ГБ.
+Первый запуск 10–20 секунд — грузится город (один меш Манхэттена, ~260 тыс. трисов).
+
+> Антивирус/SmartScreen может ругаться на неподписанный exe — «Подробнее» → «Выполнить в любом случае».
+
+### Играть в редакторе Unity
+1. Unity Hub → **Add project from disk** → папка репозитория, откройте в **Unity 6000.3.29f1**.
+2. Меню **Neon District → 1) Setup Project**, затем **2) Build Prefabs**, **3) Build Playground Scene**.
+3. Откройте `Assets/Scenes/Playground.unity` и нажмите **Play**.
+   (CI делает то же самое автоматически: `CIBuild.PrepareProject()` → `BuildPipeline.BuildPlayer`.)
+
+### Что делать в игре
+- Стартуете в 08:30 с $500; в HUD — часы, деньги, розыск, миникарта.
+- **J** — взять заказ у диспетчера (миссии `m01`…`m06`, от $600 до $6000, есть таймеры на звёзды).
+- **G** — гараж: AMG бесплатно, GLS $4200, Corvette $12500, Polestar $18000 (продажа за 60 %).
+- **E/F** — сесть в машину и выйти; **Space** — ручник; за превышение скорости и стрельбу растёт
+  розыск, полиция начинает преследовать, штраф $250 × уровень.
+- **Esc** — пауза, **M** — карта, **Tab** — журнал миссий, погода меняется сама (ясно → пасмурно → дождь → гроза).
 
 ## Управление
 | Действие | Клавиша |
