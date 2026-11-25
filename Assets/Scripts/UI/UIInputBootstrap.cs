@@ -77,6 +77,13 @@ namespace NeonDistrict.UI
                 // модуль есть, но остался без действий (сцена собрана раньше) — лечим
                 AssignUiActions(module);
             }
+            else if (IsInputSystemModule(module))
+            {
+                // ассет есть, но мог остаться выключенным — без этого модуль не видит ввод
+                var asset = GetActionsAsset(module);
+                if (asset is InputActionAsset actionAsset && !actionAsset.enabled) actionAsset.Enable();
+                if (asset != null) EnsureEnabled(module);
+            }
 #endif
         }
 
@@ -145,6 +152,10 @@ namespace NeonDistrict.UI
             var trackedDeviceOrientation = map.AddAction("TrackedDeviceOrientation", InputActionType.PassThrough, expectedControlLayout: "Quaternion");
             trackedDeviceOrientation.AddBinding("<TrackedDevice>/deviceRotation");
 
+            // Сначала активируем ассет: без этого действия не запущены и модуль ввода не получает
+            // ни позицию курсора, ни клики (кнопки выглядят живыми, но не нажимаются).
+            asset.Enable();
+
             SetProperty(module, "actionsAsset", asset);
             SetProperty(module, "point", InputActionReference.Create(point));
             SetProperty(module, "leftClick", InputActionReference.Create(leftClick));
@@ -158,6 +169,17 @@ namespace NeonDistrict.UI
             SetProperty(module, "trackedDeviceOrientation", InputActionReference.Create(trackedDeviceOrientation));
             SetProperty(module, "deselectOnBackgroundClick", false);
         }
+        /// <summary>Включат действия, назначенные модулю (на случай ассета, собранного в сцене).</summary>
+        private static void EnsureEnabled(BaseInputModule module)
+        {
+            foreach (var name in new[] { "point", "leftClick", "rightClick", "middleClick", "scrollWheel", "move", "submit", "cancel" })
+            {
+                var reference = module.GetType().GetProperty(name)?.GetValue(module) as InputActionReference;
+                var action = reference != null ? reference.action : null;
+                if (action != null && !action.enabled) action.Enable();
+            }
+        }
+
         private static void SetProperty(object target, string name, object value)
         {
             if (target == null) return;
