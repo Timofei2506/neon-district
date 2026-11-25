@@ -39,6 +39,7 @@ namespace NeonDistrict.Tests
         // Свои виртуальные устройства: в batchmode «настоящие» мышь/клавиатура редактора не имеют
         // фокуса и сбрасываются, поэтому ввод создаём сами (так же делает штатный InputTestFixture).
         // static: устройства создаются один раз на весь прогон (они не должны исчезать между тестами)
+        private static bool _devicesReady;
         private static UnityEngine.InputSystem.Mouse _mouse;
         private static UnityEngine.InputSystem.Keyboard _keyboard;
 
@@ -70,10 +71,21 @@ namespace NeonDistrict.Tests
             // Для теста просим его игнорировать фокус: это ровно то поведение, что у игрока в игре.
             try
             {
-                // Запоминаем «настоящие» устройства редактора: их нельзя убирать, но и полагаться на
-                // них в batchmode нельзя.
-                if (UnityEngine.InputSystem.Mouse.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>();
-                if (UnityEngine.InputSystem.Keyboard.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();
+                // В системе не должно быть ДВУХ мышей/клавиатур: тогда действие Point получает
+                // значение то от одной, то от другой (в batchmode системная мышь каждый кадр
+                // обнуляется и перебивает нашу). Поэтому убираем все чужие устройства и оставляем
+                // только собственные — ровно так делает штатный InputTestFixture.
+                if (!_devicesReady)
+                {
+                    foreach (var device in UnityEngine.InputSystem.InputSystem.devices.ToArray())
+                        if (device is UnityEngine.InputSystem.Mouse || device is UnityEngine.InputSystem.Keyboard)
+                            UnityEngine.InputSystem.InputSystem.RemoveDevice(device);
+
+                    _mouse = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
+                    _keyboard = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard");
+                    _devicesReady = true;
+                }
+
                 if (_mouse == null || !_mouse.added)
                     _mouse = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
                 if (_keyboard == null || !_keyboard.added)
