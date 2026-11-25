@@ -113,11 +113,11 @@ namespace NeonDistrict.Tests
             {
                 if (_mouse != null && _mouse.added)
                 {
-                    UnityEngine.InputSystem.LowLevel.InputState.Change(_mouse.leftButton, 0f);
-                    UnityEngine.InputSystem.LowLevel.InputState.Change(_mouse.rightButton, 0f);
+                    UnityEngine.InputSystem.LowLevel.InputState.Change(_mouse,
+                        new UnityEngine.InputSystem.LowLevel.MouseState { position = _mouse.position.ReadValue() });
                 }
                 if (_keyboard != null && _keyboard.added)
-                    UnityEngine.InputSystem.InputSystem.QueueStateEvent(_keyboard,
+                    UnityEngine.InputSystem.LowLevel.InputState.Change(_keyboard,
                         new UnityEngine.InputSystem.LowLevel.KeyboardState());
                 Pump();
             }
@@ -396,10 +396,18 @@ namespace NeonDistrict.Tests
             {
                 var before = player.transform.position;
                 var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
-                UnityEngine.InputSystem.LowLevel.InputState.Change(kb.wKey, 1f);
+                UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
+                    new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
                 Pump();
-                for (int i = 0; i < 30; i++) yield return null;
-                UnityEngine.InputSystem.LowLevel.InputState.Change(kb.wKey, 0f);
+                for (int i = 0; i < 30; i++)
+                {
+                    UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
+                        new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
+                    Pump();
+                    yield return null;
+                }
+                UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
+                    new UnityEngine.InputSystem.LowLevel.KeyboardState());
                 Pump();
                 yield return null;
                 var moved = Vector3.Distance(before, player.transform.position);
@@ -487,7 +495,8 @@ namespace NeonDistrict.Tests
             if (mouse == null) Assert.Fail("нет виртуальной мыши Input System");
 
             // 1) наводим курсор
-            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse.position, screen);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
+                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
             yield return null;
             yield return null;
@@ -495,7 +504,8 @@ namespace NeonDistrict.Tests
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 2) нажимаем ЛКМ
-            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse.leftButton, 1f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
+                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
             Pump();
             yield return null;
             yield return null;
@@ -503,7 +513,8 @@ namespace NeonDistrict.Tests
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 3) отпускаем — клик засчитывается на отпускании
-            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse.leftButton, 0f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
+                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
             yield return null;
             yield return null;
@@ -514,12 +525,13 @@ namespace NeonDistrict.Tests
             var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
 
-            var control = kb[key];
-            UnityEngine.InputSystem.LowLevel.InputState.Change(control, 1f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
+                new UnityEngine.InputSystem.LowLevel.KeyboardState(key));
             Pump();
             yield return null;
             yield return null;
-            UnityEngine.InputSystem.LowLevel.InputState.Change(control, 0f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
+                new UnityEngine.InputSystem.LowLevel.KeyboardState());
             Pump();
             yield return null;
             yield return null;
