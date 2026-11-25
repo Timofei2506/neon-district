@@ -66,6 +66,10 @@ namespace NeonDistrict.Tests
             {
                 var settings = UnityEngine.InputSystem.InputSystem.settings;
                 settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
+                // В batchmode у редактора нет окна, и автообновление Input System не доставляет
+                // события устройств. Переводим его в ручной режим (так же делает штатный
+                // InputTestFixture) и «тикаем» сами через Pump().
+                settings.updateMode = UnityEngine.InputSystem.InputSettings.UpdateMode.ProcessEventsManually;
             }
             catch (Exception e)
             {
@@ -116,6 +120,13 @@ namespace NeonDistrict.Tests
         }
 
         private static T Find<T>() where T : UnityEngine.Object => UnityEngine.Object.FindFirstObjectByType<T>();
+
+        /// <summary>Проталкивает очередь событий Input System вручную (batchmode сам не тикает).</summary>
+        private static void Pump()
+        {
+            try { UnityEngine.InputSystem.InputSystem.Update(); }
+            catch (Exception e) { Debug.Log("[Smoke] InputSystem.Update: " + e.Message); }
+        }
 
         /// <summary>В CI редактор запущен с -nographics: экрана/графики нет.</summary>
         private static bool Headless =>
@@ -350,10 +361,12 @@ namespace NeonDistrict.Tests
                 UnityEngine.InputSystem.InputSystem.QueueStateEvent(
                     UnityEngine.InputSystem.Keyboard.current,
                     new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
+                Pump();
                 for (int i = 0; i < 30; i++) yield return null;
                 UnityEngine.InputSystem.InputSystem.QueueStateEvent(
                     UnityEngine.InputSystem.Keyboard.current,
                     new UnityEngine.InputSystem.LowLevel.KeyboardState());
+                Pump();
                 yield return null;
                 var moved = Vector3.Distance(before, player.transform.position);
                 Check(moved > 0.1f, $"игрок двигается от клавиши W ({moved:F2} м)");
@@ -436,22 +449,28 @@ namespace NeonDistrict.Tests
                 Assert.Fail("нет виртуальной мыши Input System");
             }
 
+            // 1) наводим курсор
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
+            Pump();
             yield return null;
             yield return null;
-            Debug.Log($"[Smoke]    мышь после наведения: target={screen} actual={mouse.position.ReadValue()} " +
+            Debug.Log($"[Smoke]    мышь наведена: target={screen} actual={mouse.position.ReadValue()} " +
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
+            // 2) нажимаем ЛКМ
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
+            Pump();
             yield return null;
             yield return null;
-            Debug.Log($"[Smoke]    мышь: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
+            Debug.Log($"[Smoke]    ЛКМ нажата: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
+            // 3) отпускаем — клик засчитывается на отпускании
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
+            Pump();
             yield return null;
             yield return null;
         }
@@ -463,10 +482,12 @@ namespace NeonDistrict.Tests
 
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
                 new UnityEngine.InputSystem.LowLevel.KeyboardState(key));
+            Pump();
             yield return null;
             yield return null;
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
                 new UnityEngine.InputSystem.LowLevel.KeyboardState());
+            Pump();
             yield return null;
             yield return null;
         }
