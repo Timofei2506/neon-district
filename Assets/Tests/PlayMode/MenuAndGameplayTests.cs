@@ -507,10 +507,13 @@ namespace NeonDistrict.Tests
             // 1) наводим курсор
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
+            var rightAfterChange = mouse.position.ReadValue();
             Pump();
+            var afterPump = mouse.position.ReadValue();
             yield return null;
             yield return null;
-            Debug.Log($"[Smoke]    мышь наведена: target={screen} actual={mouse.position.ReadValue()} " +
+            Debug.Log($"[Smoke]    мышь: target={screen} после Change={rightAfterChange} после Update={afterPump} " +
+                      $"сейчас={mouse.position.ReadValue()} mode={UnityEngine.InputSystem.InputSystem.settings.updateMode} " +
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 2) нажимаем ЛКМ
