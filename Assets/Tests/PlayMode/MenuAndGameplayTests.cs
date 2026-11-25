@@ -432,8 +432,8 @@ namespace NeonDistrict.Tests
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
             yield return null;
             yield return null;
-            Note($"   мышь: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
-                 $"over={EventSystem.current?.IsPointerOverGameObject()}");
+            Debug.Log($"[Smoke]    мышь: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
+                      $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
