@@ -80,11 +80,9 @@ jobs:
           set -euo pipefail
           IMAGE="unityci/editor:ubuntu-${UNITY_VERSION}-windows-mono-4.0.0"
           echo "::group::Unity run: prepare + smoke tests"
-          # маркер для SmokeTestRunner: он поднимет Play Mode и прогонит тесты
-          touch .smoke-tests
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneWindows64 \
-            --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
+            --buildMethod NeonDistrict.EditorTools.SmokeTests.RunAllPrepared \
             --buildsPath build --skipActivation \
             --customImage "$IMAGE"
           echo "::endgroup::"

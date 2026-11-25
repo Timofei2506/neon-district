@@ -36,7 +36,14 @@ namespace NeonDistrict.EditorTools
             Session.Begin(withGameplay: true);
         }
 
-        /// <summary>CI: тесты по уже подготовленному проекту (подготовку делает CIBuild.PrepareProject).</summary>
+        /// <summary>CI: подготовить проект и сразу запустить тесты в Play Mode.</summary>
+        public static void RunAllPrepared()
+        {
+            CIBuild.PrepareProject();
+            RunAll();
+        }
+
+        /// <summary>Тесты по уже подготовленному проекту: вход в Play Mode + прогон.</summary>
         public static void RunAll()
         {
             Session.Begin(withGameplay: true);
@@ -62,8 +69,10 @@ namespace NeonDistrict.EditorTools
                 }
                 else
                 {
+                    // Просим редактор войти в Play Mode. Объекты здесь НЕ создаём: в edit-mode
+                    // DontDestroyOnLoad бросает исключение — всё создаётся в OnPlayModeChanged.
                     Debug.Log("[Smoke] входим в Play Mode для запуска тестов");
-                    UnityEditor.EditorApplication.isPlaying = true;   // в batchmode Unity играет первую сцену
+                    UnityEditor.EditorApplication.isPlaying = true;
                 }
             }
 
