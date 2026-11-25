@@ -69,16 +69,24 @@ jobs:
           game-ci activate --engine unity --unityLicensingMethod personal \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
 
+      # Подготовка проекта и тесты — как в сборке, но без BuildPlayer. Второй запуск
+      # поднимает Play Mode через -runSmokeTests (см. Editor/SmokeTestRunner.cs) и
+      # выходит с кодом 0/1 по результатам проверок.
       - name: Run smoke tests in Unity
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
+          set -euo pipefail
+          IMAGE="unityci/editor:ubuntu-${UNITY_VERSION}-windows-mono-4.0.0"
+          echo "::group::Unity run: prepare + smoke tests"
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
-            --targetPlatform StandaloneWindows64 \
-            --buildMethod NeonDistrict.EditorTools.SmokeTests.RunAllPrepared \
+            --targetPlatform standalonewindows64 \
+            --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
+            --customParameters "-runSmokeTests" \
             --buildsPath build --skipActivation \
-            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
+            --customImage "$IMAGE"
+          echo "::endgroup::"
 
       - name: Upload editor log on failure
         if: failure()

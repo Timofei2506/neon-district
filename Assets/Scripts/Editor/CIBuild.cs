@@ -28,6 +28,15 @@ namespace NeonDistrict.EditorTools
         [MenuItem("Neon District/Build Linux (CI)", priority = 21)]
         public static void BuildLinux() => Build(BuildTarget.StandaloneLinux64, "Builds/Linux", "NeonDistrict.x86_64");
 
+        /// <summary>Вызов из CLI: подготовка проекта без сборки (для автотестов).</summary>
+        public static void PrepareOnly()
+        {
+            PrepareProject();
+            Console.WriteLine();
+            Console.WriteLine("Build succeeded!");
+            EditorApplication.Exit(0);
+        }
+
         private static void Build(BuildTarget target, string outDir, string exeName)
         {
             try

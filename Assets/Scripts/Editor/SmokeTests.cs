@@ -22,32 +22,24 @@ namespace NeonDistrict.EditorTools
     ///   3. геймплей: время идёт, деньги/розыск/погода/миссии/гараж работают, пауза и возврат;
     ///   4. ни одного исключения за прогон.
     ///
-    /// Запуск: `-executeMethod NeonDistrict.EditorTools.SmokeTests.RunAllPrepared` (CI),
-    /// либо пункт меню Neon District/Tests/<...>.
+    /// В CI тесты стартует <see cref="SmokeTestRunner"/> (срабатывает по -runSmokeTests после
+    /// компиляции), потому что -executeMethod не может сам войти в Play Mode.
+    /// Локально: пункт меню Neon District/Tests/Full (Play Mode).
     /// </summary>
     public static class SmokeTests
     {
         private const string ScenePath = "Assets/Scenes/Playground.unity";
 
-        [UnityEditor.MenuItem("Neon District/Tests/Menu (Play Mode)", priority = 100)]
-        public static void RunMenuOnly()
-        {
-            if (!UnityEditor.EditorApplication.isPlaying) UnityEditor.EditorApplication.isPlaying = true;
-            Session.Begin(withGameplay: false);
-        }
-
         [UnityEditor.MenuItem("Neon District/Tests/Full (Play Mode)", priority = 101)]
-        public static void RunFull()
+        public static void RunFromMenu()
         {
-            if (!UnityEditor.EditorApplication.isPlaying) UnityEditor.EditorApplication.isPlaying = true;
             Session.Begin(withGameplay: true);
         }
 
-        /// <summary>CI: подготовить проект (URP/префабы/сцену) и прогнать все тесты.</summary>
-        public static void RunAllPrepared()
+        /// <summary>CI: тесты по уже подготовленному проекту (подготовку делает CIBuild.PrepareProject).</summary>
+        public static void RunAll()
         {
-            CIBuild.PrepareProject();
-            RunFull();
+            Session.Begin(withGameplay: true);
         }
 
         // ================================================================== session
@@ -61,10 +53,34 @@ namespace NeonDistrict.EditorTools
             public static void Begin(bool withGameplay)
             {
                 if (_instance != null) return;
+                UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeChanged;
+                _pendingGameplay = withGameplay;
+
+                if (UnityEditor.EditorApplication.isPlaying)
+                {
+                    OnPlayModeChanged(UnityEditor.PlayModeStateChange.EnteredPlayMode);
+                }
+                else
+                {
+                    Debug.Log("[Smoke] входим в Play Mode для запуска тестов");
+                    UnityEditor.EditorApplication.isPlaying = true;   // в batchmode Unity играет первую сцену
+                }
+            }
+
+            private static bool _pendingGameplay;
+            private static bool _started;
+
+            private static void OnPlayModeChanged(UnityEditor.PlayModeStateChange state)
+            {
+                if (state != UnityEditor.PlayModeStateChange.EnteredPlayMode) return;
+                if (_started) return;
+                _started = true;
+                UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+
                 var go = new GameObject("~SmokeTestSession");
                 Object.DontDestroyOnLoad(go);
                 _instance = go.AddComponent<Session>();
-                _instance._withGameplay = withGameplay;
+                _instance._withGameplay = _pendingGameplay;
                 _instance.StartCoroutine(_instance.Run());
             }
 
