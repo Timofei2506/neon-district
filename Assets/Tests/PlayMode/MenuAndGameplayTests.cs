@@ -113,8 +113,8 @@ namespace NeonDistrict.Tests
             {
                 if (_mouse != null && _mouse.added)
                 {
-                    UnityEngine.InputSystem.InputState.Change(_mouse.leftButton, 0f);
-                    UnityEngine.InputSystem.InputState.Change(_mouse.rightButton, 0f);
+                    UnityEngine.InputSystem.LowLevel.InputState.Change(_mouse.leftButton, 0f);
+                    UnityEngine.InputSystem.LowLevel.InputState.Change(_mouse.rightButton, 0f);
                 }
                 if (_keyboard != null && _keyboard.added)
                     UnityEngine.InputSystem.InputSystem.QueueStateEvent(_keyboard,
@@ -396,10 +396,10 @@ namespace NeonDistrict.Tests
             {
                 var before = player.transform.position;
                 var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
-                UnityEngine.InputSystem.InputState.Change(kb.wKey, 1f);
+                UnityEngine.InputSystem.LowLevel.InputState.Change(kb.wKey, 1f);
                 Pump();
                 for (int i = 0; i < 30; i++) yield return null;
-                UnityEngine.InputSystem.InputState.Change(kb.wKey, 0f);
+                UnityEngine.InputSystem.LowLevel.InputState.Change(kb.wKey, 0f);
                 Pump();
                 yield return null;
                 var moved = Vector3.Distance(before, player.transform.position);
@@ -487,7 +487,7 @@ namespace NeonDistrict.Tests
             if (mouse == null) Assert.Fail("нет виртуальной мыши Input System");
 
             // 1) наводим курсор
-            UnityEngine.InputSystem.InputState.Change(mouse.position, screen);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse.position, screen);
             Pump();
             yield return null;
             yield return null;
@@ -495,7 +495,7 @@ namespace NeonDistrict.Tests
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 2) нажимаем ЛКМ
-            UnityEngine.InputSystem.InputState.Change(mouse.leftButton, 1f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse.leftButton, 1f);
             Pump();
             yield return null;
             yield return null;
@@ -503,7 +503,7 @@ namespace NeonDistrict.Tests
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 3) отпускаем — клик засчитывается на отпускании
-            UnityEngine.InputSystem.InputState.Change(mouse.leftButton, 0f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse.leftButton, 0f);
             Pump();
             yield return null;
             yield return null;
@@ -515,11 +515,11 @@ namespace NeonDistrict.Tests
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
 
             var control = kb[key];
-            UnityEngine.InputSystem.InputState.Change(control, 1f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(control, 1f);
             Pump();
             yield return null;
             yield return null;
-            UnityEngine.InputSystem.InputState.Change(control, 0f);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(control, 0f);
             Pump();
             yield return null;
             yield return null;
