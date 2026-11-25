@@ -231,6 +231,19 @@ namespace NeonDistrict.Tests
             var probe = play.gameObject.AddComponent<ClickProbe>();
             probe.callback = () => clicked = true;
 
+            // диагностика: видит ли модуль ввода мышь и включены ли его actions
+            var module = EventSystem.current != null ? EventSystem.current.currentInputModule : null;
+            Note($"   модуль: {module?.GetType().Name}, enabled: {module?.enabled}, " +
+                 $"IsPointerOverGameObject: {EventSystem.current?.IsPointerOverGameObject()}");
+            foreach (var propName in new[] { "point", "leftClick", "submit" })
+            {
+                var pr = module?.GetType().GetProperty(propName);
+                var reference = pr?.GetValue(module);
+                var action = reference?.GetType().GetProperty("action")?.GetValue(reference);
+                var enabled = action?.GetType().GetProperty("enabled")?.GetValue(action);
+                Note($"   action «{propName}»: {(action == null ? "нет" : (enabled is bool b && b ? "включён" : "выключен"))}");
+            }
+
             yield return Click(play);
             UnityEngine.Object.Destroy(probe);
 
@@ -371,7 +384,11 @@ namespace NeonDistrict.Tests
                 }
             }
 
-            // пауза и возврат (курсор обязан вернуться)
+            // пауза и возврат (курсор обязан вернуться). После старта миссии игра может уйти в
+            // Cinematic (вступительный диалог) — пауза по дизайну работает только из Playing.
+            Note($"   состояние перед паузой: {gm.CurrentState}");
+            if (gm.CurrentState != GameManager.State.Playing) gm.SetState(GameManager.State.Playing);
+            yield return null;
             gm.Pause();
             yield return null;
             Check(gm.CurrentState == GameManager.State.Paused, "пауза включается");
@@ -415,6 +432,8 @@ namespace NeonDistrict.Tests
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
             yield return null;
             yield return null;
+            Note($"   мышь: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
+                 $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
