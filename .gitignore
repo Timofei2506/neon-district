@@ -41,4 +41,3 @@ _tools_dotnet/
 tools/cscheck/.dotnet/
 tools/cscheck/packages/
 tools/cscheck/out/
-.smoke-tests

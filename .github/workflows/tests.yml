@@ -1,19 +1,18 @@
 name: Tests (menu + gameplay)
 
-# Автотесты в РЕАЛЬНОМ Unity, без человека:
-#   • меню: EventSystem, модуль ввода с назначенными actions, видимый курсор,
-#            попадание raycast в каждую кнопку и реальный вызов Button.onClick;
-#   • геймплей: сцена грузится, игра стартует, идут время/деньги/розыск/погода/миссии/гараж,
-#            пауза и возврат в игру работают.
+# Приёмочные автотесты в РЕАЛЬНОМ Unity (Play Mode), без человека:
+#   • меню: EventSystem, модуль ввода с назначенными actions, видимый курсор, попадание raycast
+#           в каждую кнопку, РЕАЛЬНЫЙ клик виртуальной мышью (Input System -> Button.onClick),
+#           навигация с клавиатуры (↑/↓/Enter), переход меню -> игра;
+#   • геймплей: сцена грузится, время/деньги/розыск/погода/миссии/гараж работают, игрок двигается,
+#               пауза и возврат в игру, ни одного исключения в логе.
 #
-# Идём тем же путём, что и сборка (game-ci: активация -> Unity -> возврат места), но вместо
-# BuildPlayer вызываем NeonDistrict.EditorTools.SmokeTests.RunAllPrepared. Метод печатает блок
-# «Build results», который парсит game-ci, поэтому провал тестов = красный job.
+# Тесты лежат в Assets/Tests/PlayMode и запускаются штатным Unity Test Framework
+# (`-runTests -testPlatform PlayMode`), результат — XML в build/test-results. Ненулевой код
+# возврата Unity = красный job = сборка не выпускается.
 
 on:
-  # вызывается из build.yml как гейт перед сборкой (там же передаются секреты)
   workflow_call:
-  # ручной запуск для отладки
   workflow_dispatch:
 
 concurrency:
@@ -23,6 +22,7 @@ concurrency:
 env:
   UNITY_VERSION: 6000.3.29f1
   PROJECT_PATH: .
+  UNITY_IMAGE: unityci/editor:ubuntu-6000.3.29f1-windows-mono-4.0.0
 
 jobs:
   smoke:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ env.UNITY_VERSION }}-Tests-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          key: Library-${{ env.UNITY_VERSION }}-Tests-${{ hashFiles('Packages/manifest.json', 'Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}
           restore-keys: |
             Library-${{ env.UNITY_VERSION }}-Tests-
             Library-${{ env.UNITY_VERSION }}-Windows-
@@ -69,31 +69,72 @@ jobs:
           game-ci activate --engine unity --unityLicensingMethod personal \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
 
-      # Подготовка проекта и тесты — как в сборке, но без BuildPlayer. Второй запуск
-      # поднимает Play Mode через -runSmokeTests (см. Editor/SmokeTestRunner.cs) и
-      # выходит с кодом 0/1 по результатам проверок.
-      - name: Run smoke tests in Unity
+      # 1) Подготовка проекта без сборки: URP-ассеты, префабы, сцена, настройки.
+      - name: Prepare project
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
           set -euo pipefail
-          IMAGE="unityci/editor:ubuntu-${UNITY_VERSION}-windows-mono-4.0.0"
-          echo "::group::Unity run: prepare + smoke tests"
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneWindows64 \
-            --buildMethod NeonDistrict.EditorTools.SmokeTests.RunAllPrepared \
+            --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
             --buildsPath build --skipActivation \
-            --customImage "$IMAGE"
-          echo "::endgroup::"
+            --customImage "$UNITY_IMAGE"
 
-      - name: Upload editor log on failure
+      # 2) Play Mode-тесты штатным раннером Unity. Свой docker run (а не `game-ci build`),
+      #    потому что game-ci добавляет -quit, который убивает редактор до запуска Play Mode.
+      #    Лицензия уже лежит в ~/.config/unity3d (её положила `game-ci activate`), каталог
+      #    монтируется в контейнер как /root — поэтому --skipActivation.
+      - name: Run Play Mode tests
+        run: |
+          set -euo pipefail
+          mkdir -p build/test-results
+          docker run --rm --network host \
+            -v "$PWD":/github/workspace \
+            -v "$HOME/.config/unity3d":"/root/.config/unity3d" \
+            -w /github/workspace \
+            "$UNITY_IMAGE" \
+            unity-editor \
+              -batchmode -nographics \
+              -projectPath /github/workspace \
+              -runTests -testPlatform PlayMode \
+              -testResults /github/workspace/build/test-results/playmode.xml \
+              -logFile /github/workspace/build/test-results/editor.log
+          echo "exit=$?"
+
+      - name: Test summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          files = glob.glob('build/test-results/*.xml')
+          if not files:
+              print('::error::нет файла результатов тестов')
+              raise SystemExit(1)
+          for f in files:
+              r = ET.parse(f).getroot()
+              print(f"{f}: total={r.get('total')} passed={r.get('passed')} failed={r.get('failed')}")
+              for tc in r.iter('test-case'):
+                  mark = '✓' if tc.get('result') == 'Passed' else '✗'
+                  print(f"  {mark} {tc.get('name')}  [{tc.get('result')}]")
+                  for msg in tc.iter('message'):
+                      for line in (msg.text or '').strip().splitlines():
+                          print('     ', line)
+          failed = sum(int(ET.parse(f).getroot().get('failed', 0)) for f in files)
+          if failed:
+              print(f'::error::провалено тестов: {failed}')
+              raise SystemExit(1)
+          PY
+
+      - name: Upload test artifacts on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: unity-test-log
           path: |
-            build/**
+            build/test-results/**
+            build/**/Editor.log
             **/Editor.log
           retention-days: 14
           if-no-files-found: ignore
