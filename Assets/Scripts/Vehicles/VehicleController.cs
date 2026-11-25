@@ -128,7 +128,7 @@ namespace NeonDistrict.Vehicles
             _throttle = input.y;
             var targetSteer = input.x * maxSteerAngle * (1f - 0.45f * Mathf.Clamp01(SpeedKmh / maxSpeedKmh));
             _steer = Mathf.Lerp(_steer, targetSteer, steerSpeed * Time.deltaTime);
-            _handbrake = Input.GetKey(KeyCode.Space) ? 1f : 0f;
+            _handbrake = InputBridge.KeyHeld(KeyCode.Space) ? 1f : 0f;
         }
 
         private void FixedUpdate()

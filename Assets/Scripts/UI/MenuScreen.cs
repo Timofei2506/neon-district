@@ -445,50 +445,29 @@ namespace NeonDistrict.UI
         }
 
         // ------------------------------------------------------------------ ввод
-        // Меню должно работать и на новом Input System (он в манифесте), и на старом Input
-        // Manager: какой бэкенд активен, знает только Unity, поэтому выбираем через defines.
+        // В проекте активен только новый Input System (activeInputHandler = 1), поэтому весь ввод
+        // идёт через InputBridge: старый UnityEngine.Input в этом режиме бросает исключение.
 
         private enum KeyKind { Up, Down, W, S, Enter, NumpadEnter, Space }
 
         private static bool KeyDown(KeyKind kind)
         {
-#if ENABLE_INPUT_SYSTEM && !ND_COMPILE_CHECK
-            var kb = UnityEngine.InputSystem.Keyboard.current;
-            if (kb == null) return false;
             switch (kind)
             {
-                case KeyKind.Up: return kb.upArrowKey.wasPressedThisFrame;
-                case KeyKind.Down: return kb.downArrowKey.wasPressedThisFrame;
-                case KeyKind.W: return kb.wKey.wasPressedThisFrame;
-                case KeyKind.S: return kb.sKey.wasPressedThisFrame;
-                case KeyKind.Enter: return kb.enterKey.wasPressedThisFrame;
-                case KeyKind.NumpadEnter: return kb.numpadEnterKey.wasPressedThisFrame;
-                case KeyKind.Space: return kb.spaceKey.wasPressedThisFrame;
+                case KeyKind.Up: return InputBridge.KeyDown(KeyCode.UpArrow);
+                case KeyKind.Down: return InputBridge.KeyDown(KeyCode.DownArrow);
+                case KeyKind.W: return InputBridge.KeyDown(KeyCode.W);
+                case KeyKind.S: return InputBridge.KeyDown(KeyCode.S);
+                case KeyKind.Enter: return InputBridge.KeyDown(KeyCode.Return);
+                case KeyKind.NumpadEnter: return InputBridge.KeyDown(KeyCode.KeypadEnter);
+                case KeyKind.Space: return InputBridge.KeyDown(KeyCode.Space);
+                default: return false;
             }
-            return false;
-#else
-            switch (kind)
-            {
-                case KeyKind.Up: return Input.GetKeyDown(KeyCode.UpArrow);
-                case KeyKind.Down: return Input.GetKeyDown(KeyCode.DownArrow);
-                case KeyKind.W: return Input.GetKeyDown(KeyCode.W);
-                case KeyKind.S: return Input.GetKeyDown(KeyCode.S);
-                case KeyKind.Enter: return Input.GetKeyDown(KeyCode.Return);
-                case KeyKind.NumpadEnter: return Input.GetKeyDown(KeyCode.KeypadEnter);
-                case KeyKind.Space: return Input.GetKeyDown(KeyCode.Space);
-            }
-            return false;
-#endif
         }
 
         private static Vector2 PointerPosition()
         {
-#if ENABLE_INPUT_SYSTEM && !ND_COMPILE_CHECK
-            var mouse = UnityEngine.InputSystem.Mouse.current;
-            return mouse != null ? mouse.position.ReadValue() : Vector2.zero;
-#else
-            return Input.mousePosition;
-#endif
+            return InputBridge.MousePosition;
         }
 
         // ------------------------------------------------------------------ helpers

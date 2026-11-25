@@ -55,15 +55,13 @@ namespace NeonDistrict.UI
 
         private void Update()
         {
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetKeyDown(toggleKey)) Toggle();
-#endif
+            // Ввод только через новый Input System (см. InputBridge): старый Input в этом проекте
+            // отключён и бросает исключение при обращении.
+            if (InputBridge.KeyDown(KeyCode.G)) Toggle();
             if (!IsOpen) return;
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetKeyDown(KeyCode.Escape)) { SetOpen(false); return; }
-            if (Input.GetKeyDown(KeyCode.DownArrow)) { _cursor = Mathf.Min(_cursor + 1, _rows.Count - 1); Refresh(); }
-            if (Input.GetKeyDown(KeyCode.UpArrow)) { _cursor = Mathf.Max(_cursor - 1, 0); Refresh(); }
-#endif
+            if (InputBridge.KeyDown(KeyCode.Escape)) { SetOpen(false); return; }
+            if (InputBridge.KeyDown(KeyCode.DownArrow)) { _cursor = Mathf.Min(_cursor + 1, _rows.Count - 1); Refresh(); }
+            if (InputBridge.KeyDown(KeyCode.UpArrow)) { _cursor = Mathf.Max(_cursor - 1, 0); Refresh(); }
         }
 
         public void Toggle() => SetOpen(!IsOpen);
