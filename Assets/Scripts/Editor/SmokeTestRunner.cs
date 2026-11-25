@@ -16,12 +16,17 @@ namespace NeonDistrict.EditorTools
     /// Порядок в CI:
     ///   1. -executeMethod ...CIBuild.PrepareProject   (URP, префабы, сцена)
     ///   2. -executeMethod ...CIBuild.BuildWindows     НЕ вызывается
-    ///   3. -runSmokeTests                             → здесь: Play Mode → тесты → Exit(0/1)
+    ///   3. маркер-файл .smoke-tests в корне проекта   → здесь: Play Mode → тесты → Exit(0/1)
+    ///
+    /// Почему файл, а не аргумент командной строки: game-ci прокидывает customParameters через
+    /// yargs, и флаг вида -runSmokeTests разбирается как набор коротких опций
+    /// («Unknown arguments: r, n, S, k, e, T»). Файл в workspace виден контейнеру всегда.
     /// </summary>
     [InitializeOnLoad]
     public static class SmokeTestRunner
     {
         private const string Flag = "-runSmokeTests";
+        private const string MarkerFile = ".smoke-tests";
 
         static SmokeTestRunner()
         {
@@ -34,7 +39,10 @@ namespace NeonDistrict.EditorTools
         {
             foreach (var arg in System.Environment.GetCommandLineArgs())
                 if (arg == Flag) return true;
-            return false;
+
+            // маркер-файл в корне проекта (кладётся CI-шагом перед запуском Unity)
+            var projectRoot = System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath, ".."));
+            return System.IO.File.Exists(System.IO.Path.Combine(projectRoot, MarkerFile));
         }
 
         private static void Start()
