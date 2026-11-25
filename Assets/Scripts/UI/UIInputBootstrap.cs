@@ -38,13 +38,17 @@ namespace NeonDistrict.UI
 
         public void Setup()
         {
-            var eventSystem = EventSystem.current;
+            // ВАЖНО: ищем только ЖИВЫЕ объекты. EventSystem.current возвращает null на этапе Awake,
+            // пока сцена полностью не загружена, и раньше мы из-за этого создавали ВТОРОЙ EventSystem:
+            // в сцене их оказывалось два, и ввод уходил «не в тот» — кнопки меню не нажимались.
+            var eventSystem = FindLiveEventSystem();
             if (eventSystem == null)
             {
                 var go = new GameObject("EventSystem");
                 eventSystem = go.AddComponent<EventSystem>();
-                go.AddComponent<UIInputBootstrap>();
-                if (go != this.gameObject) Destroy(this);   // один экземпляр на сцену
+                if (go != this.gameObject) go.AddComponent<UIInputBootstrap>();
+                Destroy(this);   // один экземпляр на сцену
+                eventSystem = go.GetComponent<EventSystem>();
             }
 
             var module = eventSystem.GetComponent<BaseInputModule>();
@@ -92,6 +96,12 @@ namespace NeonDistrict.UI
         /// Создаёт UI-ассет действий (point / leftClick / rightClick / middleClick / scroll /
         /// move / submit / cancel / trackedDevice*) и назначает его модулю.
         /// </summary>
+        private static EventSystem FindLiveEventSystem()
+        {
+            var all = FindObjectsByType<EventSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            return all != null && all.Length > 0 ? all[0] : EventSystem.current;
+        }
+
         private static bool IsInputSystemModule(BaseInputModule module) =>
             module != null && module.GetType().Name == "InputSystemUIInputModule";
 
