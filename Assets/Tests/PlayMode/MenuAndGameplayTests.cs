@@ -36,6 +36,11 @@ namespace NeonDistrict.Tests
         private readonly List<string> _log = new List<string>();
         private int _runtimeErrors;
 
+        // Свои виртуальные устройства: в batchmode «настоящие» мышь/клавиатура редактора не имеют
+        // фокуса и сбрасываются, поэтому ввод создаём сами (так же делает штатный InputTestFixture).
+        private UnityEngine.InputSystem.Mouse _mouse;
+        private UnityEngine.InputSystem.Keyboard _keyboard;
+
         // ------------------------------------------------------------------ инфраструктура
 
         private void Note(string line)
@@ -70,6 +75,12 @@ namespace NeonDistrict.Tests
                 // события устройств. Переводим его в ручной режим (так же делает штатный
                 // InputTestFixture) и «тикаем» сами через Pump().
                 settings.updateMode = UnityEngine.InputSystem.InputSettings.UpdateMode.ProcessEventsManually;
+
+                if (UnityEngine.InputSystem.Mouse.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>();
+                if (UnityEngine.InputSystem.Keyboard.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();
+                _mouse = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
+                _keyboard = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard");
+                Debug.Log($"[Smoke] устройства: mouse={_mouse?.displayName} keyboard={_keyboard?.displayName}");
             }
             catch (Exception e)
             {
@@ -85,6 +96,10 @@ namespace NeonDistrict.Tests
         {
             Application.logMessageReceived -= OnLog;
             Time.timeScale = 1f;
+            if (_mouse != null && _mouse.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(_mouse);
+            if (_keyboard != null && _keyboard.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(_keyboard);
+            _mouse = null;
+            _keyboard = null;
         }
 
         // сообщения, которые в headless-режиме (-nographics) неизбежны и не относятся к игре
@@ -358,13 +373,19 @@ namespace NeonDistrict.Tests
             if (player != null)
             {
                 var before = player.transform.position;
-                UnityEngine.InputSystem.InputSystem.QueueStateEvent(
-                    UnityEngine.InputSystem.Keyboard.current,
+                var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
                     new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
                 Pump();
-                for (int i = 0; i < 30; i++) yield return null;
-                UnityEngine.InputSystem.InputSystem.QueueStateEvent(
-                    UnityEngine.InputSystem.Keyboard.current,
+                // держим клавишу: устройство «тикаем» каждый кадр, чтобы ввод не сбрасывался
+                for (int i = 0; i < 30; i++)
+                {
+                    UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
+                        new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
+                    Pump();
+                    yield return null;
+                }
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
                     new UnityEngine.InputSystem.LowLevel.KeyboardState());
                 Pump();
                 yield return null;
@@ -442,7 +463,7 @@ namespace NeonDistrict.Tests
         private static IEnumerator Click(Button b)
         {
             var screen = ScreenPointOf(b);
-            var mouse = UnityEngine.InputSystem.Mouse.current;
+            var mouse = _mouse != null ? _mouse : UnityEngine.InputSystem.Mouse.current;
             if (mouse == null)
             {
                 Debug.Log("[Smoke] ✗ Mouse.current == null — виртуальную мышь создать не удалось");
@@ -477,7 +498,7 @@ namespace NeonDistrict.Tests
 
         private static IEnumerator Key(UnityEngine.InputSystem.Key key)
         {
-            var kb = UnityEngine.InputSystem.Keyboard.current;
+            var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
 
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
