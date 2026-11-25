@@ -504,31 +504,26 @@ namespace NeonDistrict.Tests
             var mouse = _mouse != null ? _mouse : UnityEngine.InputSystem.Mouse.current;
             if (mouse == null) Assert.Fail("нет виртуальной мыши Input System");
 
-            // 1) наводим курсор
+            // ВАЖНО: весь клик делаем в одном кадре. В batchmode редактор в начале каждого кадра
+            // сбрасывает состояние мыши (в headless у него нет курсора), поэтому «навёл -> подождал ->
+            // нажал» теряло наведение.
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
-            var rightAfterChange = mouse.position.ReadValue();
             Pump();
-            var afterPump = mouse.position.ReadValue();
-            yield return null;
-            yield return null;
-            Debug.Log($"[Smoke]    мышь: target={screen} после Change={rightAfterChange} после Update={afterPump} " +
-                      $"сейчас={mouse.position.ReadValue()} mode={UnityEngine.InputSystem.InputSystem.settings.updateMode} " +
+            Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
-            // 2) нажимаем ЛКМ
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
             Pump();
-            yield return null;
-            yield return null;
-            Debug.Log($"[Smoke]    ЛКМ нажата: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
+            Debug.Log($"[Smoke]    нажатие: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
-            // 3) отпускаем — клик засчитывается на отпускании
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
+            Debug.Log($"[Smoke]    отпускание: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed}");
+
             yield return null;
             yield return null;
         }
@@ -538,11 +533,10 @@ namespace NeonDistrict.Tests
             var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
 
+            // тоже в одном кадре: нажали и отпустили, не давая редактору сбросить состояние
             UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
                 new UnityEngine.InputSystem.LowLevel.KeyboardState(key));
             Pump();
-            yield return null;
-            yield return null;
             UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
                 new UnityEngine.InputSystem.LowLevel.KeyboardState());
             Pump();
