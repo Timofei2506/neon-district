@@ -88,8 +88,11 @@ jobs:
       #    монтируется в контейнер как /root — поэтому --skipActivation.
       - name: Run Play Mode tests
         run: |
-          set -euo pipefail
-          mkdir -p build/test-results
+          set -uo pipefail
+          # build/ создан контейнером от root — забираем владение, иначе не создать подкаталог
+          sudo mkdir -p build/test-results
+          sudo chown -R "$(id -u):$(id -g)" build
+
           docker run --rm --network host \
             -v "$PWD":/github/workspace \
             -v "$HOME/.config/unity3d":"/root/.config/unity3d" \
@@ -101,7 +104,15 @@ jobs:
               -runTests -testPlatform PlayMode \
               -testResults /github/workspace/build/test-results/playmode.xml \
               -logFile /github/workspace/build/test-results/editor.log
-          echo "exit=$?"
+          RC=$?
+          echo "unity exit code: $RC"
+
+          if [ -f build/test-results/editor.log ]; then
+            echo "::group::Editor.log (последние 200 строк)"
+            tail -200 build/test-results/editor.log
+            echo "::endgroup::"
+          fi
+          exit $RC
 
       - name: Test summary
         if: always()
