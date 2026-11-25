@@ -38,8 +38,9 @@ namespace NeonDistrict.Tests
 
         // Свои виртуальные устройства: в batchmode «настоящие» мышь/клавиатура редактора не имеют
         // фокуса и сбрасываются, поэтому ввод создаём сами (так же делает штатный InputTestFixture).
-        private UnityEngine.InputSystem.Mouse _mouse;
-        private UnityEngine.InputSystem.Keyboard _keyboard;
+        // static: устройства создаются один раз на весь прогон (они не должны исчезать между тестами)
+        private static UnityEngine.InputSystem.Mouse _mouse;
+        private static UnityEngine.InputSystem.Keyboard _keyboard;
 
         // ------------------------------------------------------------------ инфраструктура
 
@@ -73,10 +74,10 @@ namespace NeonDistrict.Tests
                 // них в batchmode нельзя.
                 if (UnityEngine.InputSystem.Mouse.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>();
                 if (UnityEngine.InputSystem.Keyboard.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();
-                _mouse = UnityEngine.InputSystem.InputSystem.GetDevice<UnityEngine.InputSystem.Mouse>("TestMouse")
-                         ?? UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
-                _keyboard = UnityEngine.InputSystem.InputSystem.GetDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard")
-                            ?? UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard");
+                if (_mouse == null || !_mouse.added)
+                    _mouse = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
+                if (_keyboard == null || !_keyboard.added)
+                    _keyboard = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard");
 
                 var settings = UnityEngine.InputSystem.InputSystem.settings;
                 settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
@@ -108,8 +109,19 @@ namespace NeonDistrict.Tests
             // живут дольше теста и каждый кадр читают delta этой мыши. Удаление устройства посреди
             // работы даёт InvalidOperationException «before TestMouse has been added to system».
             // Устройства переиспользуются следующим тестом и исчезают вместе с редактором.
-            _mouse = null;
-            _keyboard = null;
+            try
+            {
+                if (_mouse != null && _mouse.added)
+                {
+                    UnityEngine.InputSystem.InputState.Change(_mouse.leftButton, 0f);
+                    UnityEngine.InputSystem.InputState.Change(_mouse.rightButton, 0f);
+                }
+                if (_keyboard != null && _keyboard.added)
+                    UnityEngine.InputSystem.InputSystem.QueueStateEvent(_keyboard,
+                        new UnityEngine.InputSystem.LowLevel.KeyboardState());
+                Pump();
+            }
+            catch (Exception) { /* устройства уже могли быть уничтожены вместе с игрой */ }
         }
 
         // сообщения, которые в headless-режиме (-nographics) неизбежны и не относятся к игре
@@ -384,19 +396,10 @@ namespace NeonDistrict.Tests
             {
                 var before = player.transform.position;
                 var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
-                UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
-                    new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
+                UnityEngine.InputSystem.InputState.Change(kb.wKey, 1f);
                 Pump();
-                // держим клавишу: устройство «тикаем» каждый кадр, чтобы ввод не сбрасывался
-                for (int i = 0; i < 30; i++)
-                {
-                    UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
-                        new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.W));
-                    Pump();
-                    yield return null;
-                }
-                UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
-                    new UnityEngine.InputSystem.LowLevel.KeyboardState());
+                for (int i = 0; i < 30; i++) yield return null;
+                UnityEngine.InputSystem.InputState.Change(kb.wKey, 0f);
                 Pump();
                 yield return null;
                 var moved = Vector3.Distance(before, player.transform.position);
@@ -472,23 +475,19 @@ namespace NeonDistrict.Tests
             public void OnPointerClick(PointerEventData eventData) => callback?.Invoke();
         }
 
-        /// <summary>Клик настоящей виртуальной мышью: Input System -> модуль ввода -> Button.onClick.</summary>
+        /// <summary>
+        /// Клик настоящей виртуальной мышью: Input System -> InputSystemUIInputModule -> Button.onClick.
+        /// Состояние подаём через InputState.Change — так же, как это делает штатный InputTestFixture
+        /// (QueueStateEvent в batchmode до устройства не доходит).
+        /// </summary>
         private IEnumerator Click(Button b)
         {
             var screen = ScreenPointOf(b);
             var mouse = _mouse != null ? _mouse : UnityEngine.InputSystem.Mouse.current;
-            if (mouse == null)
-            {
-                Debug.Log("[Smoke] ✗ Mouse.current == null — виртуальную мышь создать не удалось");
-                Assert.Fail("нет виртуальной мыши Input System");
-            }
+            if (mouse == null) Assert.Fail("нет виртуальной мыши Input System");
 
-            // 1) наводим курсор (несколько кадров, чтобы UI успел получить pointer enter)
-            UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
-            Pump();
-            UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
+            // 1) наводим курсор
+            UnityEngine.InputSystem.InputState.Change(mouse.position, screen);
             Pump();
             yield return null;
             yield return null;
@@ -496,8 +495,7 @@ namespace NeonDistrict.Tests
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 2) нажимаем ЛКМ
-            UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
+            UnityEngine.InputSystem.InputState.Change(mouse.leftButton, 1f);
             Pump();
             yield return null;
             yield return null;
@@ -505,8 +503,7 @@ namespace NeonDistrict.Tests
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             // 3) отпускаем — клик засчитывается на отпускании
-            UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
+            UnityEngine.InputSystem.InputState.Change(mouse.leftButton, 0f);
             Pump();
             yield return null;
             yield return null;
@@ -517,13 +514,12 @@ namespace NeonDistrict.Tests
             var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
 
-            UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
-                new UnityEngine.InputSystem.LowLevel.KeyboardState(key));
+            var control = kb[key];
+            UnityEngine.InputSystem.InputState.Change(control, 1f);
             Pump();
             yield return null;
             yield return null;
-            UnityEngine.InputSystem.InputSystem.QueueStateEvent(kb,
-                new UnityEngine.InputSystem.LowLevel.KeyboardState());
+            UnityEngine.InputSystem.InputState.Change(control, 0f);
             Pump();
             yield return null;
             yield return null;
