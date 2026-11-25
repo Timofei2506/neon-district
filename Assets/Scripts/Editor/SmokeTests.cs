@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using NeonDistrict.Core;
@@ -196,24 +194,28 @@ namespace NeonDistrict.EditorTools
             /// <summary>Двигаем виртуальную мышь и «нажимаем» ЛКМ через Input System.</summary>
             private IEnumerator ClickAt(Vector2 screenPosition)
             {
-                var mouse = Mouse.current;
+#if !ND_COMPILE_CHECK
+                var mouse = UnityEngine.InputSystem.Mouse.current;
                 if (mouse == null)
                 {
                     Log("   ! Mouse.current == null — виртуальную мышь создать не удалось");
                     yield break;
                 }
 
-                InputSystem.QueueStateEvent(mouse, new MouseState { position = screenPosition });
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse, new UnityEngine.InputSystem.LowLevel.MouseState { position = screenPosition });
                 yield return null;
                 yield return null;
 
-                InputSystem.QueueStateEvent(mouse, new MouseState { position = screenPosition, buttons = 1 });
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse, new UnityEngine.InputSystem.LowLevel.MouseState { position = screenPosition, buttons = 1 });
                 yield return null;
                 yield return null;
 
-                InputSystem.QueueStateEvent(mouse, new MouseState { position = screenPosition });
+                UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse, new UnityEngine.InputSystem.LowLevel.MouseState { position = screenPosition });
                 yield return null;
                 yield return null;
+#else
+                yield return null;
+#endif
             }
 
             private void CheckTopmost(Button b)
