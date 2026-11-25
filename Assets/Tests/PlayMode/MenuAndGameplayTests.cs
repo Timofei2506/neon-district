@@ -511,7 +511,8 @@ namespace NeonDistrict.Tests
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
             Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
-                      $"over={EventSystem.current?.IsPointerOverGameObject()}");
+                      $"over={EventSystem.current?.IsPointerOverGameObject()} " +
+                      $"point={ReadPointAction()} moduleActive={ModuleActive()}");
 
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
@@ -526,6 +527,34 @@ namespace NeonDistrict.Tests
 
             yield return null;
             yield return null;
+        }
+
+        /// <summary>Значение действия Point у модуля ввода — видит ли он нашу мышь.</summary>
+        private static string ReadPointAction()
+        {
+            try
+            {
+                var module = EventSystem.current?.currentInputModule;
+                if (module == null) return "нет модуля";
+                var pointProp = module.GetType().GetProperty("point");
+                var reference = pointProp?.GetValue(module);
+                var action = reference?.GetType().GetProperty("action")?.GetValue(reference);
+                if (action == null) return "нет действия";
+                var readValue = action.GetType().GetMethod("ReadValue", Type.EmptyTypes);
+                var raw = readValue?.Invoke(action, null);
+                return raw?.ToString() ?? "null";
+            }
+            catch (Exception e) { return "ошибка: " + e.Message; }
+        }
+
+        private static string ModuleActive()
+        {
+            try
+            {
+                var module = EventSystem.current?.currentInputModule;
+                return module == null ? "нет" : module.IsActive().ToString();
+            }
+            catch (Exception e) { return "ошибка: " + e.Message; }
         }
 
         private IEnumerator Key(UnityEngine.InputSystem.Key key)
