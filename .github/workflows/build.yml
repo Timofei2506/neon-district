@@ -108,7 +108,7 @@ jobs:
             --targetPlatform StandaloneWindows64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.BuildWindows \
             --buildsPath build --skipActivation \
-            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
 
       - name: Return Unity license
         if: always()
@@ -201,7 +201,7 @@ jobs:
             --targetPlatform StandaloneLinux64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.BuildLinux \
             --buildsPath build --skipActivation \
-            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
 
       - name: Return Unity license
         if: always()
