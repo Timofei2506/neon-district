@@ -172,6 +172,25 @@ namespace NeonDistrict.Tests
 
         private static T Find<T>() where T : UnityEngine.Object => UnityEngine.Object.FindFirstObjectByType<T>();
 
+        /// <summary>
+        /// Убирает «чужие» мыши/клавиатуры (их подсовывает сам редактор в headless-режиме и они
+        /// перебивают нашу нулевой позицией). Оставляем только собственные тестовые устройства.
+        /// </summary>
+        private static int SilenceForeignPointers()
+        {
+            int removed = 0;
+            foreach (var device in UnityEngine.InputSystem.InputSystem.devices.ToArray())
+            {
+                if (ReferenceEquals(device, _mouse) || ReferenceEquals(device, _keyboard)) continue;
+                if (device is UnityEngine.InputSystem.Mouse || device is UnityEngine.InputSystem.Keyboard)
+                {
+                    UnityEngine.InputSystem.InputSystem.RemoveDevice(device);
+                    removed++;
+                }
+            }
+            return removed;
+        }
+
         /// <summary>Проталкивает очередь событий Input System вручную (batchmode сам не тикает).</summary>
         private static void Pump()
         {
@@ -527,9 +546,11 @@ namespace NeonDistrict.Tests
                 Debug.Log($"[Smoke]    Point.performed: {ctx.ReadValue<Vector2>()} от {ctx.control}");
             if (pointRef?.action != null) pointRef.action.performed += diag;
 
+            var silenced = SilenceForeignPointers();
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
+            Debug.Log($"[Smoke]    убрано чужих устройств: {silenced}");
             Debug.Log($"[Smoke]    указатель модуля: {PointerStatesDiag(moduleDiag)} hooked={ActionsHooked(moduleDiag)}");
             Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
                       $"overDefault={EventSystem.current?.IsPointerOverGameObject()} " +
