@@ -100,7 +100,9 @@ namespace NeonDistrict.Tests
                 UnityEngine.InputSystem.InputSystem.Update();   // инициализируем дельты устройств
                 Debug.Log($"[Smoke] текущие устройства: mouse={UnityEngine.InputSystem.Mouse.current?.name} " +
                           $"keyboard={UnityEngine.InputSystem.Keyboard.current?.name} " +
-                          $"TestMouse.added={_mouse?.added} TestMouse.enabled={_mouse?.enabled}");
+                          $"TestMouse.added={_mouse?.added} TestMouse.enabled={_mouse?.enabled} " +
+                          $"Point.action.enabled={PointActionEnabled()} " +
+                          $"graphicRaycasters={string.Join(",", UnityEngine.Object.FindObjectsByType<GraphicRaycaster>(FindObjectsSortMode.None).Select(r => r.name + ":" + r.enabled))}");
                 Debug.Log($"[Smoke] устройства: mouse={_mouse?.displayName} keyboard={_keyboard?.displayName}");
             }
             catch (Exception e)
@@ -555,6 +557,18 @@ namespace NeonDistrict.Tests
                 var readValue = action.GetType().GetMethod("ReadValue", Type.EmptyTypes);
                 var raw = readValue?.Invoke(action, null);
                 return raw?.ToString() ?? "null";
+            }
+            catch (Exception e) { return "ошибка: " + e.Message; }
+        }
+
+        private static string PointActionEnabled()
+        {
+            try
+            {
+                var module = EventSystem.current?.currentInputModule;
+                var reference = module?.GetType().GetProperty("point")?.GetValue(module) as UnityEngine.InputSystem.InputActionReference;
+                var action = reference?.action;
+                return action == null ? "нет действия" : $"enabled={action.enabled}, controls={action.controls.Count}";
             }
             catch (Exception e) { return "ошибка: " + e.Message; }
         }
