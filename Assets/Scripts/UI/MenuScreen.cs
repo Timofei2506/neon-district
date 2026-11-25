@@ -151,7 +151,19 @@ namespace NeonDistrict.UI
             playButton = MakeMenuButton(root, "ИГРАТЬ", -430f, 0);
             continueButton = MakeMenuButton(root, "ПРОДОЛЖИТЬ", -500f, 1);
             quitButton = MakeMenuButton(root, "ВЫХОД", -570f, 2);
+            CacheButtons();
+        }
+
+        /// <summary>
+        /// Кнопки нужны и в собранном плеере: там сцену никто не «строит» через Build(), и без
+        /// этого массива навигация с клавиатуры падала с NullReferenceException ещё в Start().
+        /// </summary>
+        private void CacheButtons()
+        {
             _buttons = new[] { playButton, continueButton, quitButton };
+            _buttonsRt = new RectTransform[_buttons.Length];
+            for (int i = 0; i < _buttons.Length; i++)
+                _buttonsRt[i] = _buttons[i] != null ? (RectTransform)_buttons[i].transform : null;
         }
 
         private Button MakeMenuButton(RectTransform root, string label, float y, int index)
@@ -266,6 +278,7 @@ namespace NeonDistrict.UI
         // ------------------------------------------------------------------ логика
         private void Start()
         {
+            CacheButtons();          // в плеере Build() не вызывается — массив кнопок собираем тут
             if (playButton != null) playButton.onClick.AddListener(() => StartGame(false));
             if (continueButton != null) continueButton.onClick.AddListener(() => StartGame(true));
             if (quitButton != null) quitButton.onClick.AddListener(Quit);
@@ -377,6 +390,7 @@ namespace NeonDistrict.UI
 
         private int FirstInteractable()
         {
+            if (_buttons == null) return 0;
             for (int i = 0; i < _buttons.Length; i++) if (IsInteractable(i)) return i;
             return 0;
         }

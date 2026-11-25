@@ -133,6 +133,10 @@ namespace NeonDistrict.Vehicles
 
         private void FixedUpdate()
         {
+            // Кузов трафика кинематический (его двигает TrafficSystem) — физику и скорость не трогаем,
+            // иначе Unity пишет «Setting linear velocity of a kinematic body is not supported».
+            if (_rb != null && _rb.isKinematic) return;
+
             if (Driver == null && !autopilot)
             {
                 _throttle = 0f;
