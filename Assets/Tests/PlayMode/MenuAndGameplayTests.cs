@@ -69,10 +69,14 @@ namespace NeonDistrict.Tests
             // Для теста просим его игнорировать фокус: это ровно то поведение, что у игрока в игре.
             try
             {
+                // Запоминаем «настоящие» устройства редактора: их нельзя убирать, но и полагаться на
+                // них в batchmode нельзя.
                 if (UnityEngine.InputSystem.Mouse.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>();
                 if (UnityEngine.InputSystem.Keyboard.current == null) UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();
-                _mouse = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
-                _keyboard = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard");
+                _mouse = UnityEngine.InputSystem.InputSystem.GetDevice<UnityEngine.InputSystem.Mouse>("TestMouse")
+                         ?? UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("TestMouse");
+                _keyboard = UnityEngine.InputSystem.InputSystem.GetDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard")
+                            ?? UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>("TestKeyboard");
 
                 var settings = UnityEngine.InputSystem.InputSystem.settings;
                 settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
@@ -97,8 +101,10 @@ namespace NeonDistrict.Tests
         {
             Application.logMessageReceived -= OnLog;
             Time.timeScale = 1f;
-            if (_mouse != null && _mouse.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(_mouse);
-            if (_keyboard != null && _keyboard.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(_keyboard);
+            // Устройства НЕ удаляем: GameManager (DontDestroyOnLoad) и его PlayerController/камера
+            // живут дольше теста и каждый кадр читают delta этой мыши. Удаление устройства посреди
+            // работы даёт InvalidOperationException «before TestMouse has been added to system».
+            // Устройства переиспользуются следующим тестом и исчезают вместе с редактором.
             _mouse = null;
             _keyboard = null;
         }
