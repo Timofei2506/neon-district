@@ -79,7 +79,7 @@ jobs:
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneWindows64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
-            --buildsPath build --skipActivation \
+            --buildsPath build --skipActivation --allowDirtyBuild \
             --customImage "$UNITY_IMAGE"
 
       # 2) Play Mode-тесты штатным раннером Unity. Свой docker run (а не `game-ci build`),

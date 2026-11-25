@@ -110,7 +110,7 @@ jobs:
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneWindows64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
-            --buildsPath build --skipActivation \
+            --buildsPath build --skipActivation --allowDirtyBuild \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
 
       - name: Build with Unity (Windows)
@@ -122,7 +122,7 @@ jobs:
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneWindows64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.BuildWindows \
-            --buildsPath build --skipActivation \
+            --buildsPath build --skipActivation --allowDirtyBuild \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
 
       - name: Return Unity license
@@ -214,7 +214,7 @@ jobs:
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneLinux64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
-            --buildsPath build --skipActivation \
+            --buildsPath build --skipActivation --allowDirtyBuild \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
 
       - name: Build with Unity (Linux)
@@ -226,7 +226,7 @@ jobs:
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
             --targetPlatform StandaloneLinux64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.BuildLinux \
-            --buildsPath build --skipActivation \
+            --buildsPath build --skipActivation --allowDirtyBuild \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
 
       - name: Return Unity license
