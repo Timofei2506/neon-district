@@ -521,9 +521,16 @@ namespace NeonDistrict.Tests
             // ВАЖНО: весь клик делаем в одном кадре. В batchmode редактор в начале каждого кадра
             // сбрасывает состояние мыши (в headless у него нет курсора), поэтому «навёл -> подождал ->
             // нажал» теряло наведение.
+            var moduleDiag = EventSystem.current.currentInputModule;
+            var pointRef = moduleDiag?.GetType().GetProperty("point")?.GetValue(moduleDiag) as UnityEngine.InputSystem.InputActionReference;
+            Action<UnityEngine.InputSystem.InputAction.CallbackContext> diag = ctx =>
+                Debug.Log($"[Smoke]    Point.performed: {ctx.ReadValue<Vector2>()} от {ctx.control}");
+            if (pointRef?.action != null) pointRef.action.performed += diag;
+
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
+            Debug.Log($"[Smoke]    указатель модуля: {PointerStatesDiag(moduleDiag)} hooked={ActionsHooked(moduleDiag)}");
             Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
                       $"overDefault={EventSystem.current?.IsPointerOverGameObject()} " +
                       $"overMouse={EventSystem.current?.IsPointerOverGameObject(mouse.deviceId)} " +
@@ -541,8 +548,34 @@ namespace NeonDistrict.Tests
             Pump();
             Debug.Log($"[Smoke]    отпускание: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed}");
 
+            if (pointRef?.action != null) pointRef.action.performed -= diag;
             yield return null;
             yield return null;
+        }
+
+        private static string ActionsHooked(object module)
+        {
+            var field = module?.GetType().GetField("m_ActionsHooked",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            return field?.GetValue(module)?.ToString() ?? "?";
+        }
+
+        private static string PointerStatesDiag(object module)
+        {
+            try
+            {
+                var field = module?.GetType().GetField("m_PointerStates",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var states = field?.GetValue(module);
+                if (states == null) return "нет поля";
+                var lenProp = states.GetType().GetProperty("length");
+                var count = lenProp != null ? (int)lenProp.GetValue(states) : -1;
+                var text = $"count={count}";
+                var first = states.GetType().GetProperty("firstValue")?.GetValue(states);
+                var screenPos = first?.GetType().GetProperty("screenPosition")?.GetValue(first);
+                return text + $" pos={screenPos}";
+            }
+            catch (Exception e) { return "ошибка: " + e.Message; }
         }
 
         /// <summary>Значение действия Point у модуля ввода — видит ли он нашу мышь.</summary>
