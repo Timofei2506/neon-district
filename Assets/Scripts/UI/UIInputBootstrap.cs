@@ -168,6 +168,15 @@ namespace NeonDistrict.UI
             SetProperty(module, "trackedDevicePosition", InputActionReference.Create(trackedDevicePosition));
             SetProperty(module, "trackedDeviceOrientation", InputActionReference.Create(trackedDeviceOrientation));
             SetProperty(module, "deselectOnBackgroundClick", false);
+
+            // Модуль мог быть уже активирован — тогда его Point/Click-колбэки подписаны на СТАРЫЕ
+            // действия (или на пустой ассет). Перезапуск модуля подписывает его на новые: без этого
+            // курсор и клики до UI не доходят, хотя действия выглядят назначенными.
+            if (module.isActiveAndEnabled)
+            {
+                module.enabled = false;
+                module.enabled = true;
+            }
         }
         /// <summary>Включат действия, назначенные модулю (на случай ассета, собранного в сцене).</summary>
         private static void EnsureEnabled(BaseInputModule module)
