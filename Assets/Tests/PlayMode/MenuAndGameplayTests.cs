@@ -460,7 +460,7 @@ namespace NeonDistrict.Tests
         }
 
         /// <summary>Клик настоящей виртуальной мышью: Input System -> модуль ввода -> Button.onClick.</summary>
-        private static IEnumerator Click(Button b)
+        private IEnumerator Click(Button b)
         {
             var screen = ScreenPointOf(b);
             var mouse = _mouse != null ? _mouse : UnityEngine.InputSystem.Mouse.current;
@@ -496,7 +496,7 @@ namespace NeonDistrict.Tests
             yield return null;
         }
 
-        private static IEnumerator Key(UnityEngine.InputSystem.Key key)
+        private IEnumerator Key(UnityEngine.InputSystem.Key key)
         {
             var kb = _keyboard != null ? _keyboard : UnityEngine.InputSystem.Keyboard.current;
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
