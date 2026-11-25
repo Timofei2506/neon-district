@@ -191,6 +191,32 @@ namespace NeonDistrict.Tests
             return removed;
         }
 
+        /// <summary>
+        /// Подаёт состояние мыши: пишем state (чтобы значение было в устройстве) И ставим событие в
+        /// очередь (чтобы действия Point/Click получили его с корректным снимком состояния).
+        /// </summary>
+        private static void InjectMouse(UnityEngine.InputSystem.Mouse mouse, Vector2 position, ushort buttons = 0)
+        {
+            var state = new UnityEngine.InputSystem.LowLevel.MouseState { position = position, buttons = buttons };
+            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse, state);
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse, state);
+            Pump();
+        }
+
+        /// <summary>Подаёт нажатие клавиши (в том же кадре: нажали и отпустили).</summary>
+        private static void InjectKey(UnityEngine.InputSystem.Keyboard keyboard, UnityEngine.InputSystem.Key key)
+        {
+            var down = new UnityEngine.InputSystem.LowLevel.KeyboardState(key);
+            UnityEngine.InputSystem.LowLevel.InputState.Change(keyboard, down);
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard, down);
+            Pump();
+
+            var up = new UnityEngine.InputSystem.LowLevel.KeyboardState();
+            UnityEngine.InputSystem.LowLevel.InputState.Change(keyboard, up);
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard, up);
+            Pump();
+        }
+
         /// <summary>Проталкивает очередь событий Input System вручную (batchmode сам не тикает).</summary>
         private static void Pump()
         {
@@ -547,9 +573,7 @@ namespace NeonDistrict.Tests
             if (pointRef?.action != null) pointRef.action.performed += diag;
 
             var silenced = SilenceForeignPointers();
-            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
-            Pump();
+            InjectMouse(mouse, screen);
             Debug.Log($"[Smoke]    убрано чужих устройств: {silenced}");
             Debug.Log($"[Smoke]    указатель модуля: {PointerStatesDiag(moduleDiag)} hooked={ActionsHooked(moduleDiag)}");
             Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
@@ -558,15 +582,11 @@ namespace NeonDistrict.Tests
                       $"lmb={mouse.leftButton.isPressed} moduleActive={ModuleActive()} " +
                       $"locked={Cursor.lockState} screen={Screen.width}x{Screen.height}");
 
-            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
-            Pump();
+            InjectMouse(mouse, screen, 1);
             Debug.Log($"[Smoke]    нажатие: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
                       $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
-            UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
-                new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
-            Pump();
+            InjectMouse(mouse, screen);
             Debug.Log($"[Smoke]    отпускание: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed}");
 
             if (pointRef?.action != null) pointRef.action.performed -= diag;
@@ -645,12 +665,7 @@ namespace NeonDistrict.Tests
             if (kb == null) Assert.Fail("нет виртуальной клавиатуры Input System");
 
             // тоже в одном кадре: нажали и отпустили, не давая редактору сбросить состояние
-            UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
-                new UnityEngine.InputSystem.LowLevel.KeyboardState(key));
-            Pump();
-            UnityEngine.InputSystem.LowLevel.InputState.Change(kb,
-                new UnityEngine.InputSystem.LowLevel.KeyboardState());
-            Pump();
+            InjectKey(kb, key);
             yield return null;
             yield return null;
         }
