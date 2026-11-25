@@ -108,8 +108,12 @@ jobs:
           echo "unity exit code: $RC"
 
           if [ -f build/test-results/editor.log ]; then
-            echo "::group::Editor.log (последние 200 строк)"
-            tail -200 build/test-results/editor.log
+            echo "::group::Ход тестов ([Smoke] из Editor.log)"
+            grep -F "[Smoke]" build/test-results/editor.log | tail -120 || true
+            echo "::group end"
+            echo "::endgroup::"
+            echo "::group::Editor.log (последние 120 строк)"
+            tail -120 build/test-results/editor.log
             echo "::endgroup::"
           fi
           exit $RC
