@@ -164,8 +164,13 @@ namespace NeonDistrict.Tests
             try
             {
                 UnityEngine.InputSystem.InputSystem.Update();
-                // в ручном режиме редактор сам не обновляет EventSystem — делаем это мы
-                if (EventSystem.current != null) EventSystem.current.Update();
+                // EventSystem.Update() в batchmode может не вызываться сам — дергаем модуль ввода
+                // напрямую (это ровно то, что делает EventSystem каждый кадр).
+                if (EventSystem.current != null)
+                {
+                    var module = EventSystem.current.currentInputModule;
+                    if (module != null && module.IsActive()) module.Process();
+                }
             }
             catch (Exception e) { Debug.Log("[Smoke] Pump: " + e.Message); }
         }
