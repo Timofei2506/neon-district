@@ -1,0 +1,24 @@
+{
+    "name": "NeonDistrict.Editor",
+    "rootNamespace": "",
+    "references": [
+        "NeonDistrict",
+        "Unity.InputSystem",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.Cinemachine",
+        "Unity.AI.Navigation",
+        "UnityEngine.UI",
+        "Unity.RenderPipelines.Universal.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
