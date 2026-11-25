@@ -408,9 +408,12 @@ namespace NeonDistrict.Tests
             Assert.IsNotNull(play, "кнопка «ИГРАТЬ» есть");
             Check(play.interactable, "после стрелок «ИГРАТЬ» остаётся доступной");
 
+            // Enter активирует кнопку через Button.onClick (а не через pointer-события),
+            // поэтому слушаем именно onClick.
             bool clicked = false;
-            var probe = play.gameObject.AddComponent<ClickProbe>();
-            probe.callback = () => clicked = true;
+            UnityEngine.Events.UnityAction onClick = () => clicked = true;
+            play.onClick.AddListener(onClick);
+
             yield return Key(UnityEngine.InputSystem.Key.Enter);
 
             if (!clicked)
@@ -418,11 +421,12 @@ namespace NeonDistrict.Tests
                 // headless-редактор не доставляет клавиатуру в UI: отправляем ровно то событие,
                 // которое модуль ввода шлёт на Enter — Submit по выбранному элементу.
                 Debug.Log("[Smoke]    клавиатура в headless не доставляется — отправляю Submit как модуль ввода");
+                es.SetSelectedGameObject(play.gameObject);
                 var submitData = new BaseEventData(es) { selectedObject = play.gameObject };
                 ExecuteEvents.Execute(play.gameObject, submitData, ExecuteEvents.submitHandler);
                 yield return null;
             }
-            UnityEngine.Object.Destroy(probe);
+            play.onClick.RemoveListener(onClick);
 
             Check(clicked, "Enter по выбранному пункту вызывает Button.onClick");
             yield return null;
