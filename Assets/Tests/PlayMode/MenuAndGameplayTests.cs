@@ -85,6 +85,9 @@ namespace NeonDistrict.Tests
                 // InputTestFixture) и «тикаем» сами через Pump().
                 settings.updateMode = UnityEngine.InputSystem.InputSettings.UpdateMode.ProcessEventsManually;
                 UnityEngine.InputSystem.InputSystem.Update();   // инициализируем дельты устройств
+                Debug.Log($"[Smoke] текущие устройства: mouse={UnityEngine.InputSystem.Mouse.current?.name} " +
+                          $"keyboard={UnityEngine.InputSystem.Keyboard.current?.name} " +
+                          $"TestMouse.added={_mouse?.added} TestMouse.enabled={_mouse?.enabled}");
                 Debug.Log($"[Smoke] устройства: mouse={_mouse?.displayName} keyboard={_keyboard?.displayName}");
             }
             catch (Exception e)
