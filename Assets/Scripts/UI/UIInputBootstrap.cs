@@ -146,16 +146,16 @@ namespace NeonDistrict.UI
             trackedDeviceOrientation.AddBinding("<TrackedDevice>/deviceRotation");
 
             SetProperty(module, "actionsAsset", asset);
-            SetProperty(module, "point", new InputActionReference(point, asset));
-            SetProperty(module, "leftClick", new InputActionReference(leftClick, asset));
-            SetProperty(module, "rightClick", new InputActionReference(rightClick, asset));
-            SetProperty(module, "middleClick", new InputActionReference(middleClick, asset));
-            SetProperty(module, "scrollWheel", new InputActionReference(scroll, asset));
-            SetProperty(module, "move", new InputActionReference(move, asset));
-            SetProperty(module, "submit", new InputActionReference(submit, asset));
-            SetProperty(module, "cancel", new InputActionReference(cancel, asset));
-            SetProperty(module, "trackedDevicePosition", new InputActionReference(trackedDevicePosition, asset));
-            SetProperty(module, "trackedDeviceOrientation", new InputActionReference(trackedDeviceOrientation, asset));
+            SetProperty(module, "point", InputActionReference.Create(point));
+            SetProperty(module, "leftClick", InputActionReference.Create(leftClick));
+            SetProperty(module, "rightClick", InputActionReference.Create(rightClick));
+            SetProperty(module, "middleClick", InputActionReference.Create(middleClick));
+            SetProperty(module, "scrollWheel", InputActionReference.Create(scroll));
+            SetProperty(module, "move", InputActionReference.Create(move));
+            SetProperty(module, "submit", InputActionReference.Create(submit));
+            SetProperty(module, "cancel", InputActionReference.Create(cancel));
+            SetProperty(module, "trackedDevicePosition", InputActionReference.Create(trackedDevicePosition));
+            SetProperty(module, "trackedDeviceOrientation", InputActionReference.Create(trackedDeviceOrientation));
             SetProperty(module, "deselectOnBackgroundClick", false);
         }
         private static void SetProperty(object target, string name, object value)
