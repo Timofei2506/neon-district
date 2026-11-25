@@ -42,7 +42,9 @@ namespace NeonDistrict.EditorTools
 
             // маркер-файл в корне проекта (кладётся CI-шагом перед запуском Unity)
             var projectRoot = System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath, ".."));
-            return System.IO.File.Exists(System.IO.Path.Combine(projectRoot, MarkerFile));
+            bool marked = System.IO.File.Exists(System.IO.Path.Combine(projectRoot, MarkerFile));
+            Debug.Log($"[Smoke] маркер {MarkerFile}: {(marked ? "найден" : "нет")} ({System.IO.Path.Combine(projectRoot, MarkerFile)})");
+            return marked;
         }
 
         private static void Start()
