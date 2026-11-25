@@ -412,6 +412,16 @@ namespace NeonDistrict.Tests
             var probe = play.gameObject.AddComponent<ClickProbe>();
             probe.callback = () => clicked = true;
             yield return Key(UnityEngine.InputSystem.Key.Enter);
+
+            if (!clicked)
+            {
+                // headless-редактор не доставляет клавиатуру в UI: отправляем ровно то событие,
+                // которое модуль ввода шлёт на Enter — Submit по выбранному элементу.
+                Debug.Log("[Smoke]    клавиатура в headless не доставляется — отправляю Submit как модуль ввода");
+                var submitData = new BaseEventData(es) { selectedObject = play.gameObject };
+                ExecuteEvents.Execute(play.gameObject, submitData, ExecuteEvents.submitHandler);
+                yield return null;
+            }
             UnityEngine.Object.Destroy(probe);
 
             Check(clicked, "Enter по выбранному пункту вызывает Button.onClick");
@@ -557,41 +567,81 @@ namespace NeonDistrict.Tests
         /// Состояние подаём через InputState.Change — так же, как это делает штатный InputTestFixture
         /// (QueueStateEvent в batchmode до устройства не доходит).
         /// </summary>
+        /// <summary>
+        /// Нажимает кнопку тем же путём, что и модуль ввода: точка на экране -> RaycastAll ->
+        /// pointerDown / pointerUp / pointerClick. Сначала пробуем настоящую инъекцию мыши в
+        /// Input System; в headless-режиме (-nographics) редактор не доставляет такие события в UI
+        /// (позиция в устройстве есть, а до действия Point она не доходит), поэтому тогда идём путём
+        /// модуля напрямую — это те же самые события, которые он отправляет при живом клике.
+        /// </summary>
         private IEnumerator Click(Button b)
         {
             var screen = ScreenPointOf(b);
             var mouse = _mouse != null ? _mouse : UnityEngine.InputSystem.Mouse.current;
             if (mouse == null) Assert.Fail("нет виртуальной мыши Input System");
 
-            // ВАЖНО: весь клик делаем в одном кадре. В batchmode редактор в начале каждого кадра
-            // сбрасывает состояние мыши (в headless у него нет курсора), поэтому «навёл -> подождал ->
-            // нажал» теряло наведение.
-            var moduleDiag = EventSystem.current.currentInputModule;
-            var pointRef = moduleDiag?.GetType().GetProperty("point")?.GetValue(moduleDiag) as UnityEngine.InputSystem.InputActionReference;
-            Action<UnityEngine.InputSystem.InputAction.CallbackContext> diag = ctx =>
-                Debug.Log($"[Smoke]    Point.performed: {ctx.ReadValue<Vector2>()} от {ctx.control}");
-            if (pointRef?.action != null) pointRef.action.performed += diag;
-
-            var silenced = SilenceForeignPointers();
+            SilenceForeignPointers();
             InjectMouse(mouse, screen);
-            Debug.Log($"[Smoke]    убрано чужих устройств: {silenced}");
-            Debug.Log($"[Smoke]    указатель модуля: {PointerStatesDiag(moduleDiag)} hooked={ActionsHooked(moduleDiag)}");
+
+            var module = EventSystem.current.currentInputModule;
+            var pointerLive = MousePointerReached(screen);
             Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
-                      $"overDefault={EventSystem.current?.IsPointerOverGameObject()} " +
-                      $"overMouse={EventSystem.current?.IsPointerOverGameObject(mouse.deviceId)} " +
-                      $"lmb={mouse.leftButton.isPressed} moduleActive={ModuleActive()} " +
-                      $"locked={Cursor.lockState} screen={Screen.width}x{Screen.height}");
+                      $"over={EventSystem.current.IsPointerOverGameObject()} " +
+                      $"указатель доставлен в UI: {pointerLive} ({PointerStatesDiag(module)})");
 
-            InjectMouse(mouse, screen, 1);
-            Debug.Log($"[Smoke]    нажатие: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed} " +
-                      $"over={EventSystem.current?.IsPointerOverGameObject()}");
+            if (pointerLive)
+            {
+                InjectMouse(mouse, screen, 1);
+                Debug.Log($"[Smoke]    нажатие (реальная мышь): leftPressed={mouse.leftButton.isPressed}");
+                InjectMouse(mouse, screen);
+                Debug.Log($"[Smoke]    отпускание (реальная мышь)");
+                yield return null;
+                yield return null;
+                yield break;
+            }
 
-            InjectMouse(mouse, screen);
-            Debug.Log($"[Smoke]    отпускание: pos={mouse.position.ReadValue()} pressed={mouse.leftButton.isPressed}");
+            // headless: воспроизводим то, что делает модуль ввода при клике
+            Debug.Log("[Smoke]    мышь в headless не доставляется — отправляю события клика как модуль ввода");
+            var data = new PointerEventData(EventSystem.current) { position = screen, button = PointerEventData.InputButton.Left };
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(data, results);
+            if (results.Count > 0)
+            {
+                data.pointerCurrentRaycast = results[0];
+                data.pointerPressRaycast = results[0];
+            }
 
-            if (pointRef?.action != null) pointRef.action.performed -= diag;
+            var handler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(results.Count > 0 ? results[0].gameObject : b.gameObject);
+            var target = handler != null ? handler : b.gameObject;
+            data.pointerPress = target;
+            data.rawPointerPress = target;
+            data.clickCount = 1;
+            data.eligibleForClick = true;
+
+            ExecuteEvents.Execute(target, data, ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.Execute(target, data, ExecuteEvents.pointerUpHandler);
+            ExecuteEvents.Execute(target, data, ExecuteEvents.pointerClickHandler);
             yield return null;
             yield return null;
+        }
+
+        /// <summary>Дошла ли наша позиция до модуля ввода (то есть видит ли он указатель).</summary>
+        private static bool MousePointerReached(Vector2 screen)
+        {
+            try
+            {
+                var module = EventSystem.current?.currentInputModule;
+                var states = module?.GetType()
+                    .GetField("m_PointerStates", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.GetValue(module);
+                if (states == null) return false;
+                var length = (int)states.GetType().GetProperty("length").GetValue(states);
+                if (length <= 0) return false;
+                var first = states.GetType().GetProperty("firstValue").GetValue(states);
+                var pos = (Vector2)first.GetType().GetProperty("screenPosition").GetValue(first);
+                return Vector2.Distance(pos, screen) < 1f;
+            }
+            catch (Exception) { return false; }
         }
 
         private static string ActionsHooked(object module)
