@@ -525,8 +525,10 @@ namespace NeonDistrict.Tests
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             Pump();
             Debug.Log($"[Smoke]    наведение: target={screen} факт={mouse.position.ReadValue()} " +
-                      $"over={EventSystem.current?.IsPointerOverGameObject()} " +
-                      $"point={ReadPointAction()} moduleActive={ModuleActive()}");
+                      $"overDefault={EventSystem.current?.IsPointerOverGameObject()} " +
+                      $"overMouse={EventSystem.current?.IsPointerOverGameObject(mouse.deviceId)} " +
+                      $"lmb={mouse.leftButton.isPressed} moduleActive={ModuleActive()} " +
+                      $"locked={Cursor.lockState} screen={Screen.width}x{Screen.height}");
 
             UnityEngine.InputSystem.LowLevel.InputState.Change(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
