@@ -38,10 +38,19 @@ env:
   PROJECT_PATH: '.'
 
 jobs:
+  # ---------------------------------------------------------------- Tests gate
+  # Меню/курсор/геймплей проверяются автотестами в реальном Unity (workflow "Tests").
+  # Сборка и релиз запускаются только после зелёных тестов.
+  tests:
+    name: Tests gate
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+
   # ---------------------------------------------------------------- Windows
   # Основная платформа: отсюда же берётся артефакт для релиза.
   build-windows:
     name: Windows x64
+    needs: [tests]
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -144,9 +153,9 @@ jobs:
   # Запускается только если Windows собрался: экономит минуты раннера.
   build-linux:
     name: Linux x64
+    needs: [tests, build-windows]
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    needs: build-windows
     steps:
       - uses: actions/checkout@v4
         with:
@@ -225,7 +234,7 @@ jobs:
   release:
     name: Release (tag)
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build-windows, build-linux]
+    needs: [tests, build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write

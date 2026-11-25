@@ -1,0 +1,101 @@
+name: Tests (menu + gameplay)
+
+# Автотесты в РЕАЛЬНОМ Unity, без человека:
+#   • меню: EventSystem, модуль ввода с назначенными actions, видимый курсор,
+#            попадание raycast в каждую кнопку и реальный вызов Button.onClick;
+#   • геймплей: сцена грузится, игра стартует, идут время/деньги/розыск/погода/миссии/гараж,
+#            пауза и возврат в игру работают.
+#
+# Идём тем же путём, что и сборка (game-ci: активация -> Unity -> возврат места), но вместо
+# BuildPlayer вызываем NeonDistrict.EditorTools.SmokeTests.RunAllPrepared. Метод печатает блок
+# «Build results», который парсит game-ci, поэтому провал тестов = красный job.
+
+on:
+  # вызывается из build.yml как гейт перед сборкой (там же передаются секреты)
+  workflow_call:
+  # ручной запуск для отладки
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UNITY_VERSION: 6000.3.29f1
+  PROJECT_PATH: .
+
+jobs:
+  smoke:
+    name: Unity smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 1
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ env.UNITY_VERSION }}-Tests-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: |
+            Library-${{ env.UNITY_VERSION }}-Tests-
+            Library-${{ env.UNITY_VERSION }}-Windows-
+            Library-
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL 2>/dev/null || true
+          df -h /
+
+      - name: Install GameCI CLI
+        run: |
+          set -euo pipefail
+          VERSION=v0.1.77
+          curl -fsSL --retry 3 -o /tmp/game-ci.tar.gz \
+            "https://github.com/game-ci/cli/releases/download/$VERSION/game-ci-linux-x64.tar.gz"
+          mkdir -p "$HOME/.game-ci"
+          tar -xzf /tmp/game-ci.tar.gz -C "$HOME/.game-ci"
+          echo "$HOME/.game-ci" >> "$GITHUB_PATH"
+          "$HOME/.game-ci/game-ci" --version
+
+      - name: Activate Unity (Personal seat via account)
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci activate --engine unity --unityLicensingMethod personal \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
+
+      - name: Run smoke tests in Unity
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci build --engine unity --projectPath "$PROJECT_PATH" \
+            --targetPlatform StandaloneWindows64 \
+            --buildMethod NeonDistrict.EditorTools.SmokeTests.RunAllPrepared \
+            --buildsPath build --skipActivation \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
+
+      - name: Upload editor log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-test-log
+          path: |
+            build/**
+            **/Editor.log
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Return Unity license
+        if: always()
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci return-license --engine unity --unityLicensingMethod personal \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0 || true

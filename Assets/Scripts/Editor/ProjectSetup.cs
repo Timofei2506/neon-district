@@ -37,6 +37,7 @@ namespace NeonDistrict.EditorTools
             var asset = EnsureUrpAsset();
             AssignUrp(asset);
             #endif
+            EnsureInputSystem();
             ConfigureQuality();
             ConfigurePlayer();
             AssetDatabase.SaveAssets();
@@ -232,6 +233,40 @@ namespace NeonDistrict.EditorTools
             Debug.Log("[Neon District] URP назначен в Graphics и Quality.");
         }
 #endif
+
+        /// <summary>
+        /// Проект написан под новый Input System (PlayerController/камера/меню читают
+        /// Keyboard.current и т.п.). В репозитории нет ProjectSettings.asset, поэтому бэкенд
+        /// надо выставлять явно: при «старом» менеджере ввода InputSystem-код молча не работает,
+        /// и это же ломает UI-клики, если активен InputSystemUIInputModule.
+        ///
+        /// 2 = Input System Package (New), 1 = Both, 0 = Input Manager (Old).
+        /// Ставим Both: код на новом Input System работает, а старый Input остаётся доступным
+        /// как страховка (часть UI его использует).
+        /// </summary>
+        private static void EnsureInputSystem()
+        {
+            var settings = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
+            if (settings == null || settings.Length == 0)
+            {
+                Debug.LogWarning("[Neon District] ProjectSettings.asset не найден — бэкенд ввода не изменён.");
+                return;
+            }
+
+            var so = new SerializedObject(settings[0]);
+            var handler = so.FindProperty("activeInputHandler");
+            if (handler == null)
+            {
+                Debug.LogWarning("[Neon District] activeInputHandler не найден — пропускаем настройку ввода.");
+                return;
+            }
+
+            if (handler.intValue == 2) return;      // уже Input System Package
+            handler.intValue = 1;                   // Both: новый + старый
+            so.ApplyModifiedProperties();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Neon District] Бэкенд ввода: Both (Input System + Input Manager).");
+        }
 
         private static void ConfigureQuality()
         {

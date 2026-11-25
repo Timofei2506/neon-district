@@ -48,8 +48,12 @@ namespace NeonDistrict.UI
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
             canvasGo.AddComponent<GraphicRaycaster>();
-            if (canvasGo.GetComponent<CanvasGroup>() == null) _panelGroup = canvasGo.AddComponent<CanvasGroup>();
-            else _panelGroup = canvasGo.GetComponent<CanvasGroup>();
+            // тычок в EventSystem: если его нет, создаём (в старых сценах его не было вовсе)
+            if (EventSystem.current == null) UIInputBootstrap.Instance?.Setup();
+            _panelGroup = canvasGo.GetComponent<CanvasGroup>();
+            if (_panelGroup == null) _panelGroup = canvasGo.AddComponent<CanvasGroup>();
+            _panelGroup.interactable = true;
+            _panelGroup.blocksRaycasts = true;
 
             // ---------------------------------------------------------- затемнение под текстом
             var shade = MakeImage("Shade", canvasGo.transform, NeonGfx.White, new Color(0f, 0f, 0f, 0.0f));
@@ -291,6 +295,7 @@ namespace NeonDistrict.UI
         {
             bool inMenu = s == GameManager.State.Menu;
             if (canvas != null) canvas.enabled = inMenu;
+            if (_panelGroup != null) { _panelGroup.interactable = inMenu; _panelGroup.blocksRaycasts = inMenu; }
             if (cursor != null) cursor.SetActive(inMenu);
             if (inMenu)
             {

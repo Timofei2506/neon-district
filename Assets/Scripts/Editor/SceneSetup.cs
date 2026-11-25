@@ -181,10 +181,10 @@ namespace NeonDistrict.EditorTools
             // «в меню ничего не реагирует». Input System пакет включён, поэтому модуль ввода — его.
             var eventSystemGo = new GameObject("EventSystem");
             eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
-#if !ND_COMPILE_CHECK
-            // в офлайн-проверке пакета Input System нет — тип недоступен, в Unity он есть
-            eventSystemGo.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
-#endif
+            // Модуль ввода создаёт UIInputBootstrap: он же назначает actions-ассет.
+            // Пустой InputSystemUIInputModule (просто AddComponent) событий мыши НЕ получает —
+            // именно из-за этого кнопки меню не нажимались.
+            eventSystemGo.AddComponent<NeonDistrict.UI.UIInputBootstrap>();
 
             var ui = new GameObject("UI");
             var hud = ui.AddComponent<NeonDistrict.UI.HUDController>();
