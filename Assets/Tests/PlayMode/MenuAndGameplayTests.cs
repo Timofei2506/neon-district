@@ -220,11 +220,11 @@ namespace NeonDistrict.Tests
             var first = es.currentSelectedGameObject;
             Check(first != null, "в меню что-то выбрано (навигация с клавиатуры возможна)");
 
-            yield return Key(UnityEngine.InputSystem.Key.Down);
+            yield return Key(UnityEngine.InputSystem.Key.DownArrow);
             var second = es.currentSelectedGameObject;
             Check(second != null && second != first, "↓ переводит выбор на другую кнопку");
 
-            yield return Key(UnityEngine.InputSystem.Key.Up);
+            yield return Key(UnityEngine.InputSystem.Key.UpArrow);
             Check(es.currentSelectedGameObject != null, "↑ возвращает выбор");
 
             // Enter по выбранной кнопке "ИГРАТЬ": сначала выбираем именно её
