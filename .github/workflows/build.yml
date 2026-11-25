@@ -63,7 +63,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ env.UNITY_VERSION }}-Windows-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          key: Library-${{ env.UNITY_VERSION }}-Windows-v2-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt', 'Assets/**/*.asmdef') }}
           restore-keys: |
             Library-${{ env.UNITY_VERSION }}-Windows-
             Library-
@@ -165,7 +165,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ env.UNITY_VERSION }}-Linux-${{ hashFiles('Packages/manifest.json') }}
+          key: Library-${{ env.UNITY_VERSION }}-Linux-v2-${{ hashFiles('Packages/manifest.json', 'Assets/**/*.asmdef') }}
           restore-keys: |
             Library-${{ env.UNITY_VERSION }}-Linux-
             Library-
