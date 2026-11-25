@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 
 namespace NeonDistrict.UI
 {
@@ -8,7 +7,7 @@ namespace NeonDistrict.UI
     /// Гарантирует, что UI-клики работают: в сцене должен быть ровно один EventSystem
     /// с модулем ввода, у которого назначены actions.
     ///
-    /// Почему это отдельный компонент: <see cref="InputSystemUIInputModule"/>, созданный
+    /// Почему это отдельный компонент: InputSystemUIInputModule, созданный
     /// через AddComponent, приходит с ПУСТЫМИ действиями (нет UI-ассета) — событий мыши он
     /// не получает, и кнопки меню не нажимаются, хотя Cursor.visible = true и GraphicRaycaster
     /// на месте. Поэтому мы создаём ассет действий в рантайме и подсовываем его модулю.
@@ -51,19 +50,31 @@ namespace NeonDistrict.UI
             if (module == null)
             {
 #if !ND_COMPILE_CHECK
-                var inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-                AssignUiActions(inputModule);
-                if (logSetup) Debug.Log("[Neon District] UI: InputSystemUIInputModule с назначенными действиями.");
+                // тип берём по имени: офлайн reference-сборки Unity не содержат пакета Input System,
+                // и прямой using сломал бы статическую проверку (а в Unity тип есть всегда)
+                var moduleType = System.Type.GetType(
+                    "UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+                if (moduleType != null)
+                {
+                    var inputModule = eventSystem.gameObject.AddComponent(moduleType) as BaseInputModule;
+                    AssignUiActions(inputModule);
+                    if (logSetup) Debug.Log("[Neon District] UI: InputSystemUIInputModule с назначенными действиями.");
+                }
+                else
+                {
+                    eventSystem.gameObject.AddComponent<StandaloneInputModule>();
+                    if (logSetup) Debug.LogWarning("[Neon District] UI: Input System недоступен, стоит StandaloneInputModule.");
+                }
 #else
                 eventSystem.gameObject.AddComponent<StandaloneInputModule>();
                 if (logSetup) Debug.Log("[Neon District] UI: StandaloneInputModule.");
 #endif
             }
 #if !ND_COMPILE_CHECK
-            else if (module is InputSystemUIInputModule existing)
+            else if (IsInputSystemModule(module) && GetActionsAsset(module) == null)
             {
-                // модуль есть, но мог остаться без действий (сцена собрана раньше) — лечим
-                if (existing.actionsAsset == null) AssignUiActions(existing);
+                // модуль есть, но остался без действий (сцена собрана раньше) — лечим
+                AssignUiActions(module);
             }
 #endif
         }
@@ -73,10 +84,18 @@ namespace NeonDistrict.UI
         /// Создаёт UI-ассет действий (point / leftClick / rightClick / middleClick / scroll /
         /// move / submit / cancel / trackedDevice*) и назначает его модулю.
         /// </summary>
-        private static void AssignUiActions(InputSystemUIInputModule module)
+        private static bool IsInputSystemModule(BaseInputModule module) =>
+            module != null && module.GetType().Name == "InputSystemUIInputModule";
+
+        private static object GetActionsAsset(BaseInputModule module)
+        {
+            var prop = module.GetType().GetProperty("actionsAsset");
+            return prop != null ? prop.GetValue(module) : null;
+        }
+
+        private static void AssignUiActions(BaseInputModule module)
         {
             if (module == null) return;
-
             var asset = ScriptableObject.CreateInstance<InputActionAsset>();
             asset.name = "NeonDistrict_UI_Actions";
 
@@ -102,7 +121,6 @@ namespace NeonDistrict.UI
             scroll.AddBinding("<Mouse>/scroll");
 
             var move = map.AddAction("Navigate", InputActionType.PassThrough, expectedControlLayout: "Vector2");
-            move.AddBinding("2DVector", null, "2DVector");
             move.AddCompositeBinding("2DVector")
                 .With("Up", "<Keyboard>/upArrow")
                 .With("Down", "<Keyboard>/downArrow")
@@ -126,20 +144,25 @@ namespace NeonDistrict.UI
             var trackedDeviceOrientation = map.AddAction("TrackedDeviceOrientation", InputActionType.PassThrough, expectedControlLayout: "Quaternion");
             trackedDeviceOrientation.AddBinding("<TrackedDevice>/deviceRotation");
 
-            module.actionsAsset = asset;
-            module.point = new InputActionReference(point, asset);
-            module.leftClick = new InputActionReference(leftClick, asset);
-            module.rightClick = new InputActionReference(rightClick, asset);
-            module.middleClick = new InputActionReference(middleClick, asset);
-            module.scrollWheel = new InputActionReference(scroll, asset);
-            module.move = new InputActionReference(move, asset);
-            module.submit = new InputActionReference(submit, asset);
-            module.cancel = new InputActionReference(cancel, asset);
-            module.trackedDevicePosition = new InputActionReference(trackedDevicePosition, asset);
-            module.trackedDeviceOrientation = new InputActionReference(trackedDeviceOrientation, asset);
-
-            // клик по кнопке не должен требовать «фокуса» — снимаем требование, если поле есть
-            module.deselectOnBackgroundClick = false;
+            SetProperty(module, "actionsAsset", asset);
+            SetProperty(module, "point", new InputActionReference(point, asset));
+            SetProperty(module, "leftClick", new InputActionReference(leftClick, asset));
+            SetProperty(module, "rightClick", new InputActionReference(rightClick, asset));
+            SetProperty(module, "middleClick", new InputActionReference(middleClick, asset));
+            SetProperty(module, "scrollWheel", new InputActionReference(scroll, asset));
+            SetProperty(module, "move", new InputActionReference(move, asset));
+            SetProperty(module, "submit", new InputActionReference(submit, asset));
+            SetProperty(module, "cancel", new InputActionReference(cancel, asset));
+            SetProperty(module, "trackedDevicePosition", new InputActionReference(trackedDevicePosition, asset));
+            SetProperty(module, "trackedDeviceOrientation", new InputActionReference(trackedDeviceOrientation, asset));
+            SetProperty(module, "deselectOnBackgroundClick", false);
+        }
+        private static void SetProperty(object target, string name, object value)
+        {
+            if (target == null) return;
+            var prop = target.GetType().GetProperty(name,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            if (prop != null && prop.CanWrite) prop.SetValue(target, value);
         }
 #endif
     }
