@@ -42,6 +42,7 @@ namespace NeonDistrict.EditorTools
             try
             {
                 Debug.Log("=== Neon District CI build: " + target + " ===");
+                Debug.Log($"[CI] активный Backend сборки (игрок): {PlayerSettings.GetScriptingBackend(BuildTargetGroup.Standalone)}");
                 PrepareProject();
 
                 // если запуск идёт через game-ci, он передаёт -customBuildPath <...>/NeonDistrict.exe —

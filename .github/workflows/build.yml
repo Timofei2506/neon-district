@@ -98,6 +98,21 @@ jobs:
           game-ci activate --engine unity --unityLicensingMethod personal \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
 
+      # Подготовка проекта ОТДЕЛЬНЫМ запуском: CIBuild.PrepareProject() выставляет Player Settings
+      # (в частности Input System). Если делать это прямо в процессе сборки, редактор успевает
+      # скомпилировать скрипты по старым defines, а плеер — по новым, и Unity падает с
+      # «Error building player because script class layout is incompatible».
+      - name: Prepare project (Windows)
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci build --engine unity --projectPath "$PROJECT_PATH" \
+            --targetPlatform StandaloneWindows64 \
+            --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
+            --buildsPath build --skipActivation \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-windows-mono-4.0.0
+
       - name: Build with Unity (Windows)
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -190,6 +205,17 @@ jobs:
         run: |
           game-ci activate --engine unity --unityLicensingMethod personal \
             --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-base-4.0.0
+
+      - name: Prepare project (Linux)
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          game-ci build --engine unity --projectPath "$PROJECT_PATH" \
+            --targetPlatform StandaloneLinux64 \
+            --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
+            --buildsPath build --skipActivation \
+            --customImage unityci/editor:ubuntu-${{ env.UNITY_VERSION }}-linux-il2cpp-4.0.0
 
       - name: Build with Unity (Linux)
         env:
