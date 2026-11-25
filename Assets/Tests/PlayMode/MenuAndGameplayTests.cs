@@ -161,8 +161,13 @@ namespace NeonDistrict.Tests
         /// <summary>Проталкивает очередь событий Input System вручную (batchmode сам не тикает).</summary>
         private static void Pump()
         {
-            try { UnityEngine.InputSystem.InputSystem.Update(); }
-            catch (Exception e) { Debug.Log("[Smoke] InputSystem.Update: " + e.Message); }
+            try
+            {
+                UnityEngine.InputSystem.InputSystem.Update();
+                // в ручном режиме редактор сам не обновляет EventSystem — делаем это мы
+                if (EventSystem.current != null) EventSystem.current.Update();
+            }
+            catch (Exception e) { Debug.Log("[Smoke] Pump: " + e.Message); }
         }
 
         /// <summary>В CI редактор запущен с -nographics: экрана/графики нет.</summary>
