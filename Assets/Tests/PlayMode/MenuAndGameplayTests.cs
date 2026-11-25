@@ -58,6 +58,19 @@ namespace NeonDistrict.Tests
             // создаются, и Unity пишет в лог ошибки. Это ограничение headless-режима, а не баг игры,
             // поэтому такие сообщения ожидаемы. Всё остальное (исключения, NullReference) — провал.
             UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
+
+            // В batchmode у окна редактора нет фокуса, а Input System по умолчанию в такой ситуации
+            // сбрасывает устройства (ResetAndDisable) — тогда мышью/клавиатурой ничего не нажать.
+            // Для теста просим его игнорировать фокус: это ровно то поведение, что у игрока в игре.
+            try
+            {
+                var settings = UnityEngine.InputSystem.InputSystem.settings;
+                settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
+            }
+            catch (Exception e)
+            {
+                Debug.Log("[Smoke] не удалось настроить Input System: " + e.Message);
+            }
             _log.Clear();
             _runtimeErrors = 0;
             Application.logMessageReceived += OnLog;
@@ -427,6 +440,8 @@ namespace NeonDistrict.Tests
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen });
             yield return null;
             yield return null;
+            Debug.Log($"[Smoke]    мышь после наведения: target={screen} actual={mouse.position.ReadValue()} " +
+                      $"over={EventSystem.current?.IsPointerOverGameObject()}");
 
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,
                 new UnityEngine.InputSystem.LowLevel.MouseState { position = screen, buttons = 1 });
