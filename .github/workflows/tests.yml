@@ -83,7 +83,7 @@ jobs:
           # маркер для SmokeTestRunner: он поднимет Play Mode и прогонит тесты
           touch .smoke-tests
           game-ci build --engine unity --projectPath "$PROJECT_PATH" \
-            --targetPlatform standalonewindows64 \
+            --targetPlatform StandaloneWindows64 \
             --buildMethod NeonDistrict.EditorTools.CIBuild.PrepareOnly \
             --buildsPath build --skipActivation \
             --customImage "$IMAGE"
