@@ -60,14 +60,15 @@ namespace NeonDistrict.UI
             if (player == null && GameManager.Instance != null && GameManager.Instance.player != null)
                 player = GameManager.Instance.player.transform;
 
-            if (output != null) output.texture = EnsureRenderTexture();
+            var rt = EnsureRenderTexture();
+            if (output != null) output.texture = rt;
             if (blipRoot != null) _playerArrow = CreateBlip("Player", playerColor, _arrowSprite, new Vector2(16f, 16f));
 
             if (mapCamera != null)
             {
                 mapCamera.orthographic = true;
                 mapCamera.orthographicSize = orthoSize;
-                mapCamera.targetTexture = EnsureRenderTexture();
+                mapCamera.targetTexture = rt;   // в headless-режиме null: камера просто не рендерит
                 mapCamera.clearFlags = CameraClearFlags.SolidColor;
                 mapCamera.backgroundColor = new Color(0.02f, 0.03f, 0.05f, 1f);
                 mapCamera.farClipPlane = 900f;
@@ -80,10 +81,20 @@ namespace NeonDistrict.UI
         private RenderTexture EnsureRenderTexture()
         {
             if (_rt != null) return _rt;
+
+            // В headless-режиме (-nographics, так гоняются автотесты в CI) графического устройства
+            // нет и RenderTexture.Create падает с ошибкой. Мини-карта там не нужна — просто без неё.
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+                return null;
+
             _rt = new RenderTexture(resolution, resolution, 24, RenderTextureFormat.Default);
             _rt.name = "MinimapRT";
             _rt.filterMode = FilterMode.Bilinear;
-            _rt.Create();
+            if (!_rt.Create())
+            {
+                Debug.LogWarning("[Neon District] мини-карта: RenderTexture не создалась — работаем без неё");
+                return _rt;
+            }
             return _rt;
         }
 
